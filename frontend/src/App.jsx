@@ -499,7 +499,7 @@ function App() {
       </main>
 
       <footer className="app-footer">
-        <p>Created by <a href="https://github.com/k1monfared" target="_blank" rel="noopener noreferrer">k1monfared</a></p>
+        <p>Created by <a href="https://github.com/k1monfared/cantstop-game" target="_blank" rel="noopener noreferrer">k1monfared</a></p>
       </footer>
 
     </div>
