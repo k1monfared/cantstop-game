@@ -498,6 +498,10 @@ function App() {
         </div>
       </main>
 
+      <footer className="app-footer">
+        <p>Created by <a href="https://github.com/k1monfared" target="_blank" rel="noopener noreferrer">k1monfared</a></p>
+      </footer>
+
     </div>
   )
 }
