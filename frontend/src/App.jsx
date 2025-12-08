@@ -4,9 +4,10 @@ import GameBoard from './components/GameBoard'
 import DiceRoller from './components/DiceRoller'
 import PairingSelector from './components/PairingSelector'
 import PlayerInfo from './components/PlayerInfo'
+import { API_BASE_URL } from './config'
 import './App.css'
 
-const API_BASE = '/api'
+const API_BASE = API_BASE_URL
 
 function App() {
   const [gameId, setGameId] = useState(null)

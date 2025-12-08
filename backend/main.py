@@ -894,6 +894,12 @@ async def root():
     return {"status": "ok", "game": "Can't Stop"}
 
 
+@app.get("/api/health")
+async def health():
+    """Health check for Render"""
+    return {"status": "healthy", "service": "Can't Stop API"}
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
