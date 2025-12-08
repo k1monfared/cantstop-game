@@ -2,6 +2,10 @@
 
 A fully-featured web implementation of the classic "Can't Stop" dice game with beautiful animations and real-time gameplay.
 
+**[Play the game online!](https://cantstop-frontend.onrender.com/)**
+
+**[Read the mathematical analysis of the game](https://github.com/k1monfared/notes/blob/main/blog/20251201_cant_stop_addicted_to_the_shindig.md)** - An in-depth look at optimal strategies and probabilities.
+
 ## Game Overview
 
 Can't Stop is a push-your-luck dice game where players race to complete columns numbered 2-12. On each turn, you roll 4 dice and choose how to pair them, advancing in those columns. The challenge is deciding when to stop and save your progress versus risking it all for more advancement.
