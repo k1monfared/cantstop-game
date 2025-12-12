@@ -4,6 +4,8 @@ import GameBoard from './components/GameBoard'
 import DiceRoller from './components/DiceRoller'
 import PairingSelector from './components/PairingSelector'
 import PlayerInfo from './components/PlayerInfo'
+import BrainIcon from './components/BrainIcon'
+import BustProbability from './components/BustProbability'
 import { API_BASE_URL } from './config'
 import './App.css'
 
@@ -24,6 +26,7 @@ function App() {
   const [hoveredPairing, setHoveredPairing] = useState(null)
   const [hoveredNumber, setHoveredNumber] = useState(null)
   const [hoveredSum, setHoveredSum] = useState(null) // For hovering individual sums in choose-one
+  const [showProbSidebar, setShowProbSidebar] = useState(false)
 
   // Create new game on mount
   useEffect(() => {
@@ -396,6 +399,14 @@ function App() {
           >
             #
           </button>
+          <button
+            className={`toggle-btn brain-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
+            onMouseEnter={() => setShowProbSidebar(true)}
+            onMouseLeave={() => setShowProbSidebar(false)}
+            title="Show bust probability analysis"
+          >
+            <BrainIcon size={20} />
+          </button>
           <button className="new-game-btn" onClick={createNewGame} disabled={loading}>
             New Game
           </button>
@@ -501,6 +512,9 @@ function App() {
       <footer className="app-footer">
         <p>Created by <a href="https://github.com/k1monfared/cantstop-game" target="_blank" rel="noopener noreferrer">k1monfared</a></p>
       </footer>
+
+      {/* Bust Probability Sidebar */}
+      <BustProbability gameState={gameState} visible={showProbSidebar} />
 
     </div>
   )
