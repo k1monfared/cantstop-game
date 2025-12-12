@@ -13,9 +13,10 @@ function PlayerInfo({
   onRoll = () => {},
   onStop = () => {},
   loading = false,
-  animatingMove = false
+  animatingMove = false,
+  playerName = `Player ${playerNumber}`,
+  setPlayerName = () => {}
 }) {
-  const [playerName, setPlayerName] = useState(`Player ${playerNumber}`)
   const [isEditing, setIsEditing] = useState(false)
 
   const totalProgress = Object.entries(permanent)

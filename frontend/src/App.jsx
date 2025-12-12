@@ -27,6 +27,8 @@ function App() {
   const [hoveredNumber, setHoveredNumber] = useState(null)
   const [hoveredSum, setHoveredSum] = useState(null) // For hovering individual sums in choose-one
   const [showProbSidebar, setShowProbSidebar] = useState(false)
+  const [player1Name, setPlayer1Name] = useState('Player 1')
+  const [player2Name, setPlayer2Name] = useState('Player 2')
 
   // Create new game on mount
   useEffect(() => {
@@ -423,6 +425,8 @@ function App() {
               completed={gameState.player1_completed}
               isActive={currentPlayer === 1}
               columnLengths={gameState.column_lengths}
+              playerName={player1Name}
+              setPlayerName={setPlayer1Name}
             />
           </aside>
 
@@ -481,17 +485,8 @@ function App() {
                 )}
               </div>
 
-              {/* Game over message */}
+              {/* Game over message - now hidden, replaced by overlay */}
               <div className="action-buttons">
-                {gameState.game_over && (
-                  <div className="game-over">
-                    <h2>Game Over!</h2>
-                    <p>Player {gameState.winner} Wins!</p>
-                    <button className="primary-btn" onClick={createNewGame}>
-                      Play Again
-                    </button>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -504,6 +499,8 @@ function App() {
               completed={gameState.player2_completed}
               isActive={currentPlayer === 2}
               columnLengths={gameState.column_lengths}
+              playerName={player2Name}
+              setPlayerName={setPlayer2Name}
             />
           </aside>
         </div>
@@ -515,6 +512,32 @@ function App() {
 
       {/* Bust Probability Sidebar */}
       <BustProbability gameState={gameState} visible={showProbSidebar} />
+
+      {/* Winner overlay - similar to bust overlay but happy */}
+      {gameState.game_over && (
+        <>
+          <motion.div
+            className={`winner-label-overlay player-${gameState.winner}-wins`}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: [0, 1.1, 1], opacity: 1 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+          >
+            <div className="winner-name">
+              {gameState.winner === 1 ? player1Name : player2Name}
+            </div>
+            <div className="winner-text">wins!!</div>
+          </motion.div>
+          <motion.button
+            className="play-again-btn-positioned"
+            onClick={createNewGame}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+          >
+            Play Again
+          </motion.button>
+        </>
+      )}
 
     </div>
   )
