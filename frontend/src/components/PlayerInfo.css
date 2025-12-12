@@ -5,10 +5,16 @@
   border: 2px solid transparent;
 }
 
-.player-info.active {
-  background: rgba(251, 191, 36, 0.08);
-  border-color: var(--selection-color);
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+.player-1.active {
+  background: rgba(249, 115, 22, 0.08);
+  border-color: var(--player-1-color);
+  box-shadow: 0 0 20px rgba(249, 115, 22, 0.3);
+}
+
+.player-2.active {
+  background: rgba(59, 130, 246, 0.08);
+  border-color: var(--player-2-color);
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.3);
 }
 
 .player-header {

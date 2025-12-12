@@ -524,3 +524,69 @@
 .dark-mode .app-footer a:hover {
   color: #c4b5fd;
 }
+
+/* Winner overlay - similar to bust overlay but with happy feeling */
+.winner-label-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 6rem;
+  font-weight: 900;
+  text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.3);
+  letter-spacing: 4px;
+  z-index: 100;
+  pointer-events: none;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.winner-label-overlay .winner-name {
+  font-size: 6rem;
+  line-height: 1;
+}
+
+.winner-label-overlay .winner-text {
+  font-size: 4rem;
+  line-height: 1;
+}
+
+.winner-label-overlay.player-1-wins .winner-name {
+  color: var(--player-1-color);
+}
+
+.winner-label-overlay.player-2-wins .winner-name {
+  color: var(--player-2-color);
+}
+
+.winner-label-overlay .winner-text {
+  color: var(--success-color);
+}
+
+/* Play again button positioned below the winner overlay */
+.play-again-btn-positioned {
+  position: fixed;
+  top: calc(50% + 200px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 2rem;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  z-index: 101;
+}
+
+.play-again-btn-positioned:hover {
+  background: var(--primary-color-dark);
+  transform: translateX(-50%) translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
