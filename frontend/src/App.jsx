@@ -29,6 +29,7 @@ function App() {
   const [showProbSidebar, setShowProbSidebar] = useState(false)
   const [player1Name, setPlayer1Name] = useState('Player 1')
   const [player2Name, setPlayer2Name] = useState('Player 2')
+  const [showNameEditor, setShowNameEditor] = useState(false)
 
   // Create new game on mount
   useEffect(() => {
@@ -54,14 +55,77 @@ function App() {
   const createNewGame = async () => {
     setLoading(true)
     try {
-      const response = await axios.post(`${API_BASE}/games`)
+      const response = await axios.post(`${API_BASE}/games`, {
+        player1_name: player1Name,
+        player2_name: player2Name
+      })
       setGameId(response.data.game_id)
       setGameState(response.data.state)
       setSelectedPairing(null)
+      // Update player names from response in case they were modified
+      if (response.data.state.player1_name) setPlayer1Name(response.data.state.player1_name)
+      if (response.data.state.player2_name) setPlayer2Name(response.data.state.player2_name)
     } catch (error) {
       console.error('Error creating game:', error)
     } finally {
       setLoading(false)
+    }
+  }
+
+  const saveGame = async () => {
+    if (!gameId) return
+
+    try {
+      const response = await axios.get(`${API_BASE}/games/${gameId}/save`)
+      const { filename, data } = response.data
+
+      // Create blob and download file
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' })
+      const url = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = filename
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error saving game:', error)
+      alert('Failed to save game')
+    }
+  }
+
+  const loadGame = async (event) => {
+    const file = event.target.files[0]
+    if (!file) return
+
+    setLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await axios.post(`${API_BASE}/games/load`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      })
+
+      // Set the new game ID and state
+      setGameId(response.data.game_id)
+      setGameState(response.data.state)
+      setSelectedPairing(null)
+      // Update player names from loaded game
+      if (response.data.state.player1_name) setPlayer1Name(response.data.state.player1_name)
+      if (response.data.state.player2_name) setPlayer2Name(response.data.state.player2_name)
+
+      alert('Game loaded successfully!')
+    } catch (error) {
+      console.error('Error loading game:', error)
+      alert('Failed to load game. Please check the file format.')
+    } finally {
+      setLoading(false)
+      // Reset file input
+      event.target.value = null
     }
   }
 
@@ -389,6 +453,13 @@ function App() {
         <div className="header-controls">
           <button
             className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
+            onClick={() => setShowNameEditor(!showNameEditor)}
+            title="Edit player names"
+          >
+            ✎
+          </button>
+          <button
+            className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
             onClick={() => setDarkMode(!darkMode)}
             title="Toggle dark mode"
           >
@@ -409,11 +480,56 @@ function App() {
           >
             <BrainIcon size={20} />
           </button>
+          <button className="new-game-btn" onClick={saveGame} disabled={loading || !gameId}>
+            Save
+          </button>
+          <label className="new-game-btn" style={{ cursor: 'pointer', margin: 0 }}>
+            Load
+            <input
+              type="file"
+              accept=".csp,.json"
+              onChange={loadGame}
+              style={{ display: 'none' }}
+              disabled={loading}
+            />
+          </label>
           <button className="new-game-btn" onClick={createNewGame} disabled={loading}>
             New Game
           </button>
         </div>
       </header>
+
+      {/* Player name editor modal */}
+      {showNameEditor && (
+        <div className="modal-backdrop" onClick={() => setShowNameEditor(false)}>
+          <div className="name-editor-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Edit Player Names</h3>
+            <div className="name-input-group">
+              <label>Player 1:</label>
+              <input
+                type="text"
+                value={player1Name}
+                onChange={(e) => setPlayer1Name(e.target.value)}
+                placeholder="Player 1"
+              />
+            </div>
+            <div className="name-input-group">
+              <label>Player 2:</label>
+              <input
+                type="text"
+                value={player2Name}
+                onChange={(e) => setPlayer2Name(e.target.value)}
+                placeholder="Player 2"
+              />
+            </div>
+            <div className="name-editor-actions">
+              <button className="primary-btn" onClick={() => setShowNameEditor(false)}>
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="game-container">
         <div className="game-layout">
@@ -421,6 +537,7 @@ function App() {
           <aside className={`player-sidebar player-1-sidebar ${currentPlayer === 1 ? 'active-player' : ''}`}>
             <PlayerInfo
               playerNumber={1}
+              playerName={gameState.player1_name || player1Name}
               permanent={gameState.player1_permanent}
               completed={gameState.player1_completed}
               isActive={currentPlayer === 1}
@@ -444,46 +561,48 @@ function App() {
             />
 
             <div className="game-controls">
-              {/* Dice and pairings - always visible */}
-              <div className="dice-and-pairings">
-                {/* Dice area - always visible, shows empty state when no dice */}
-                <DiceRoller
-                  dice={lastDice || gameState.current_dice}
-                  isBust={gameState.is_bust}
-                  dicePairs={dicePairs}
-                  onContinue={continueAfterBust}
-                  onRoll={rollDice}
-                  onStop={stopTurn}
-                  canRoll={canRollPlayer1 || canRollPlayer2}
-                  canStop={canStopPlayer1 || canStopPlayer2}
-                  loading={loading}
-                  currentPlayer={currentPlayer}
-                />
-
-                {/* Pairing selector - always visible when dice are rolled or pairings exist */}
-                {hasPairings && (
-                  <PairingSelector
-                    availablePairings={gameState.available_pairings}
-                    validPairings={gameState.valid_pairings}
-                    pairingPlayability={gameState.pairing_playability}
-                    selectedPairing={selectedPairing}
-                    onSelectPairing={selectPairing}
-                    onSelectSum={selectSum}
-                    activeRunners={gameState.active_runners}
-                    allCompleted={[
-                      ...gameState.player1_completed,
-                      ...gameState.player2_completed
-                    ]}
+              {/* Dice and pairings - visible only when game is not over */}
+              {!gameState.game_over && (
+                <div className="dice-and-pairings">
+                  {/* Dice area - always visible, shows empty state when no dice */}
+                  <DiceRoller
+                    dice={lastDice || gameState.current_dice}
                     isBust={gameState.is_bust}
-                    onHoverPairing={setHoveredPairing}
-                    hoveredPairing={hoveredPairing}
-                    onHoverSum={setHoveredSum}
-                    hoveredSum={hoveredSum}
-                    sumColorMap={sumColorMap}
-                    lastChosenPairingIndex={gameState.last_chosen_pairing_index}
+                    dicePairs={dicePairs}
+                    onContinue={continueAfterBust}
+                    onRoll={rollDice}
+                    onStop={stopTurn}
+                    canRoll={canRollPlayer1 || canRollPlayer2}
+                    canStop={canStopPlayer1 || canStopPlayer2}
+                    loading={loading}
+                    currentPlayer={currentPlayer}
                   />
-                )}
-              </div>
+
+                  {/* Pairing selector - always visible when dice are rolled or pairings exist */}
+                  {hasPairings && (
+                    <PairingSelector
+                      availablePairings={gameState.available_pairings}
+                      validPairings={gameState.valid_pairings}
+                      pairingPlayability={gameState.pairing_playability}
+                      selectedPairing={selectedPairing}
+                      onSelectPairing={selectPairing}
+                      onSelectSum={selectSum}
+                      activeRunners={gameState.active_runners}
+                      allCompleted={[
+                        ...gameState.player1_completed,
+                        ...gameState.player2_completed
+                      ]}
+                      isBust={gameState.is_bust}
+                      onHoverPairing={setHoveredPairing}
+                      hoveredPairing={hoveredPairing}
+                      onHoverSum={setHoveredSum}
+                      hoveredSum={hoveredSum}
+                      sumColorMap={sumColorMap}
+                      lastChosenPairingIndex={gameState.last_chosen_pairing_index}
+                    />
+                  )}
+                </div>
+              )}
 
               {/* Game over message - now hidden, replaced by overlay */}
               <div className="action-buttons">
@@ -495,6 +614,7 @@ function App() {
           <aside className={`player-sidebar player-2-sidebar ${currentPlayer === 2 ? 'active-player' : ''}`}>
             <PlayerInfo
               playerNumber={2}
+              playerName={gameState.player2_name || player2Name}
               permanent={gameState.player2_permanent}
               completed={gameState.player2_completed}
               isActive={currentPlayer === 2}

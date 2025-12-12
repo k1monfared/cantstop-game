@@ -3,8 +3,9 @@ Can't Stop Game - FastAPI Backend
 Interactive game server with WebSocket support for real-time gameplay
 """
 
-from fastapi import FastAPI, WebSocket, HTTPException
+from fastapi import FastAPI, WebSocket, HTTPException, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import List, Dict, Set, Tuple, Optional
 import random
@@ -297,9 +298,13 @@ class GameMechanics:
 class GameState:
     """Complete game state"""
 
-    def __init__(self, game_id: str):
+    def __init__(self, game_id: str, player1_name: str = "Player 1", player2_name: str = "Player 2"):
         self.game_id = game_id
         self.current_player = 1
+
+        # Player names
+        self.player1_name = player1_name
+        self.player2_name = player2_name
 
         # Player progress
         self.player1_permanent = {col: 0 for col in range(2, 13)}
@@ -399,6 +404,8 @@ class GameState:
         return {
             "game_id": self.game_id,
             "current_player": self.current_player,
+            "player1_name": self.player1_name,
+            "player2_name": self.player2_name,
             "player1_permanent": self.player1_permanent,
             "player2_permanent": self.player2_permanent,
             "player1_completed": list(self.player1_completed),
@@ -423,7 +430,9 @@ class GameState:
     @classmethod
     def from_dict(cls, data: dict) -> 'GameState':
         """Create GameState from dictionary"""
-        game = cls(data["game_id"])
+        player1_name = data.get("player1_name", "Player 1")
+        player2_name = data.get("player2_name", "Player 2")
+        game = cls(data["game_id"], player1_name, player2_name)
         game.current_player = data["current_player"]
         game.player1_permanent = data["player1_permanent"]
         game.player2_permanent = data["player2_permanent"]
@@ -462,10 +471,10 @@ class GameManager:
         self.save_dir = Path("saved_games")
         self.save_dir.mkdir(exist_ok=True)
 
-    def create_game(self) -> str:
+    def create_game(self, player1_name: str = "Player 1", player2_name: str = "Player 2") -> str:
         """Create new game, return game_id"""
         game_id = str(uuid.uuid4())
-        game = GameState(game_id)
+        game = GameState(game_id, player1_name, player2_name)
         # Save initial state to history
         game.save_to_history()
         self.games[game_id] = game
@@ -704,83 +713,45 @@ class GameManager:
 
         return game.to_dict()
 
-    def save_game(self, game_id: str, filename: Optional[str] = None) -> str:
-        """Save game state to JSON file
+    def save_game(self, game_id: str) -> Tuple[str, dict]:
+        """Generate save data for game
 
         Args:
             game_id: ID of the game to save
-            filename: Optional custom filename (without extension)
 
         Returns:
-            Path to saved file
+            Tuple of (filename, game_data_dict)
         """
         game = self.get_game(game_id)
         game.last_updated = datetime.now().isoformat()
 
-        if filename is None:
-            filename = f"game_{game_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
-        elif not filename.endswith('.json'):
-            filename = f"{filename}.json"
+        # Generate filename: cant_stop_YYYY_MM_DD_player1name_player2name.csp
+        date_str = datetime.now().strftime('%Y_%m_%d')
+        # Sanitize player names for filename (replace spaces and special chars with underscores)
+        p1_safe = ''.join(c if c.isalnum() else '_' for c in game.player1_name)
+        p2_safe = ''.join(c if c.isalnum() else '_' for c in game.player2_name)
+        filename = f"cant_stop_{date_str}_{p1_safe}_{p2_safe}.csp"
 
-        filepath = self.save_dir / filename
+        return filename, game.to_dict()
 
-        with open(filepath, 'w') as f:
-            json.dump(game.to_dict(), f, indent=2)
-
-        return str(filepath)
-
-    def load_game(self, filename: str) -> str:
-        """Load game state from JSON file
+    def load_game(self, game_data: dict) -> str:
+        """Load game state from data dict
 
         Args:
-            filename: Name of the file to load (with or without .json extension)
+            game_data: Dictionary containing game state
 
         Returns:
             game_id of loaded game
         """
-        if not filename.endswith('.json'):
-            filename = f"{filename}.json"
+        # Generate new game ID for the loaded game
+        new_game_id = str(uuid.uuid4())
+        game_data["game_id"] = new_game_id
 
-        filepath = self.save_dir / filename
-
-        if not filepath.exists():
-            raise HTTPException(status_code=404, detail=f"Save file not found: {filename}")
-
-        with open(filepath, 'r') as f:
-            data = json.load(f)
-
-        game = GameState.from_dict(data)
+        game = GameState.from_dict(game_data)
         self.games[game.game_id] = game
 
         return game.game_id
 
-    def list_saved_games(self) -> List[Dict[str, str]]:
-        """List all saved game files
-
-        Returns:
-            List of dicts with filename, game_id, created_at, last_updated
-        """
-        saved_games = []
-
-        for filepath in self.save_dir.glob("*.json"):
-            try:
-                with open(filepath, 'r') as f:
-                    data = json.load(f)
-                saved_games.append({
-                    "filename": filepath.name,
-                    "game_id": data.get("game_id"),
-                    "created_at": data.get("created_at"),
-                    "last_updated": data.get("last_updated"),
-                    "game_over": data.get("game_over", False),
-                    "winner": data.get("winner")
-                })
-            except Exception as e:
-                print(f"Error reading {filepath}: {e}")
-
-        # Sort by last_updated descending
-        saved_games.sort(key=lambda x: x.get("last_updated", ""), reverse=True)
-
-        return saved_games
 
 
 # Global game manager
@@ -790,6 +761,10 @@ game_manager = GameManager()
 # ============================================================================
 # API ENDPOINTS
 # ============================================================================
+
+class CreateGameRequest(BaseModel):
+    player1_name: Optional[str] = "Player 1"
+    player2_name: Optional[str] = "Player 2"
 
 class CreateGameResponse(BaseModel):
     game_id: str
@@ -810,9 +785,11 @@ class StopTurnResponse(BaseModel):
 
 
 @app.post("/api/games", response_model=CreateGameResponse)
-async def create_game():
+async def create_game(request: CreateGameRequest = None):
     """Create a new game"""
-    game_id = game_manager.create_game()
+    if request is None:
+        request = CreateGameRequest()
+    game_id = game_manager.create_game(request.player1_name, request.player2_name)
     game = game_manager.get_game(game_id)
     return {"game_id": game_id, "state": game.to_dict()}
 
@@ -866,26 +843,29 @@ async def redo(game_id: str):
     return {"state": state}
 
 
-@app.post("/api/games/{game_id}/save")
-async def save_game(game_id: str, filename: Optional[str] = None):
-    """Save game to file"""
-    filepath = game_manager.save_game(game_id, filename)
-    return {"message": "Game saved successfully", "filepath": filepath}
+@app.get("/api/games/{game_id}/save")
+async def save_game(game_id: str):
+    """Get save data for game (returns filename and data for download)"""
+    filename, game_data = game_manager.save_game(game_id)
+    return JSONResponse(content={
+        "filename": filename,
+        "data": game_data
+    })
 
 
 @app.post("/api/games/load")
-async def load_game(filename: str):
-    """Load game from file"""
-    game_id = game_manager.load_game(filename)
-    game = game_manager.get_game(game_id)
-    return {"message": "Game loaded successfully", "game_id": game_id, "state": game.to_dict()}
-
-
-@app.get("/api/games/saved")
-async def list_saved_games():
-    """List all saved games"""
-    games = game_manager.list_saved_games()
-    return {"saved_games": games}
+async def load_game(file: UploadFile = File(...)):
+    """Load game from uploaded file"""
+    try:
+        contents = await file.read()
+        game_data = json.loads(contents)
+        game_id = game_manager.load_game(game_data)
+        game = game_manager.get_game(game_id)
+        return {"message": "Game loaded successfully", "game_id": game_id, "state": game.to_dict()}
+    except json.JSONDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid file format")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error loading game: {str(e)}")
 
 
 @app.get("/")
