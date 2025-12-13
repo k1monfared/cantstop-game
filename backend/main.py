@@ -434,12 +434,23 @@ class GameState:
         player2_name = data.get("player2_name", "Player 2")
         game = cls(data["game_id"], player1_name, player2_name)
         game.current_player = data["current_player"]
-        game.player1_permanent = data["player1_permanent"]
-        game.player2_permanent = data["player2_permanent"]
+
+        # Convert string keys to integers for permanent progress
+        # Initialize with all columns first (in case loaded data is incomplete)
+        game.player1_permanent = {col: 0 for col in range(2, 13)}
+        game.player2_permanent = {col: 0 for col in range(2, 13)}
+        # Then update with loaded data
+        game.player1_permanent.update({int(k): v for k, v in data["player1_permanent"].items()})
+        game.player2_permanent.update({int(k): v for k, v in data["player2_permanent"].items()})
+
         game.player1_completed = set(data["player1_completed"])
         game.player2_completed = set(data["player2_completed"])
         game.current_dice = data.get("current_dice")
-        game.temp_progress = data.get("temp_progress", {})
+
+        # Convert string keys to integers for temp_progress
+        temp_progress_data = data.get("temp_progress", {})
+        game.temp_progress = {int(k): v for k, v in temp_progress_data.items()} if temp_progress_data else {}
+
         game.active_runners = set(data.get("active_runners", []))
         game.available_pairings = data.get("available_pairings", [])
         game.valid_pairings = data.get("valid_pairings", [])
@@ -725,12 +736,18 @@ class GameManager:
         game = self.get_game(game_id)
         game.last_updated = datetime.now().isoformat()
 
-        # Generate filename: cant_stop_YYYY_MM_DD_player1name_player2name.csp
-        date_str = datetime.now().strftime('%Y_%m_%d')
-        # Sanitize player names for filename (replace spaces and special chars with underscores)
-        p1_safe = ''.join(c if c.isalnum() else '_' for c in game.player1_name)
-        p2_safe = ''.join(c if c.isalnum() else '_' for c in game.player2_name)
-        filename = f"cant_stop_{date_str}_{p1_safe}_{p2_safe}.csp"
+        # Generate filename: cant_stop_YYYYmmdd_HHMMSS[_player1name_player2name].csp
+        # Exclude player names if they're the default values
+        datetime_str = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+        # Only include player names if they're not the default values
+        if game.player1_name == "Player 1" and game.player2_name == "Player 2":
+            filename = f"cant_stop_{datetime_str}.csp"
+        else:
+            # Sanitize player names for filename (replace spaces and special chars with underscores)
+            p1_safe = ''.join(c if c.isalnum() else '_' for c in game.player1_name)
+            p2_safe = ''.join(c if c.isalnum() else '_' for c in game.player2_name)
+            filename = f"cant_stop_{datetime_str}_{p1_safe}_{p2_safe}.csp"
 
         return filename, game.to_dict()
 

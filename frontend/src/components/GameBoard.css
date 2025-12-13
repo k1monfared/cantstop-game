@@ -84,10 +84,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 1.4rem;
+  font-weight: 900;
+  font-size: 3.2rem;
+  line-height: 1;
   box-shadow: 0 2px 8px rgba(75, 85, 99, 0.3);
   transition: all 0.3s ease;
+}
+
+.board-column-number {
+  font-size: 3.2rem;
+  font-weight: 900;
+  line-height: 1;
 }
 
 .column-track {
@@ -164,32 +171,56 @@
 .temp-marker {
   border: 3px solid;
   background: var(--bg-white-solid);
-  /* No animation - positioned inline */
+  animation: tempGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes tempGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 12px currentColor, 0 0 20px currentColor;
+  }
 }
 
 .player-1-temp {
   border-color: var(--player-1-color);
+  color: var(--player-1-color);
 }
 
 .player-2-temp {
   border-color: var(--player-2-color);
+  color: var(--player-2-color);
 }
 
 .preview-marker {
   background: var(--pair-1-color);
   opacity: 0.8;
+  animation: previewGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes previewGlow {
+  0%, 100% {
+    box-shadow: 0 0 8px currentColor, 0 0 12px currentColor;
+  }
+  50% {
+    box-shadow: 0 0 12px currentColor, 0 0 20px currentColor;
+  }
 }
 
 .preview-marker.preview-pair1 {
   background: var(--pair-1-color);
+  color: var(--pair-1-color);
 }
 
 .preview-marker.preview-pair2 {
   background: var(--pair-2-color);
+  color: var(--pair-2-color);
 }
 
 .preview-marker.preview-invalid {
   background: var(--invalid-color);
+  color: var(--invalid-color);
 }
 
 .preview-marker.preview-semi {

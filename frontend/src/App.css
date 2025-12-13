@@ -17,9 +17,11 @@
 }
 
 .app-header h1 {
-  font-size: 1.8rem;
-  color: var(--primary-color);
+  font-size: 2.5rem;
+  color: #dc2626;
   margin: 0;
+  font-weight: 900;
+  letter-spacing: 2px;
 }
 
 .header-controls {
@@ -29,51 +31,53 @@
 }
 
 .toggle-btn {
-  padding: 0.6rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem;
+  min-width: 50px;
+  min-height: 50px;
   border-radius: 8px;
   font-size: 1.2rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
-  border: 2px solid;
+  border: none;
 }
 
 .toggle-btn.light-mode-btn {
   background: rgba(31, 41, 55, 0.1);
   color: #1f2937;
-  border-color: rgba(31, 41, 55, 0.3);
 }
 
 .toggle-btn.light-mode-btn:hover {
   background: rgba(31, 41, 55, 0.2);
-  border-color: rgba(31, 41, 55, 0.5);
   transform: translateY(-2px);
 }
 
 .toggle-btn.dark-mode-btn {
   background: rgba(255, 255, 255, 0.1);
   color: #e2e8f0;
-  border-color: rgba(255, 255, 255, 0.3);
 }
 
 .toggle-btn.dark-mode-btn:hover {
   background: rgba(255, 255, 255, 0.2);
-  border-color: rgba(255, 255, 255, 0.5);
   transform: translateY(-2px);
 }
 
 .toggle-btn.brain-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.6rem;
-  min-width: 42px;
+  /* Same size as other buttons now */
 }
 
 .toggle-btn.brain-btn:hover {
   background: var(--primary-color) !important;
-  border-color: var(--primary-color) !important;
   color: white !important;
+}
+
+.toggle-btn.sticky-active {
+  background: var(--primary-color) !important;
+  color: white !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
 }
 
 .new-game-btn {
@@ -98,6 +102,11 @@
   padding: 1rem;
   width: 100%;
   overflow-y: auto;
+  transition: margin-right 0.3s ease-out;
+}
+
+.game-container.sidebar-open {
+  margin-right: 420px;
 }
 
 .game-layout {
@@ -440,7 +449,7 @@
 }
 
 .dark-mode .app-header h1 {
-  color: #a78bfa;
+  color: #ef4444;
 }
 
 .dark-mode .toggle-btn {
@@ -669,4 +678,187 @@
 .dark-mode .name-input-group input:focus {
   border-color: #a78bfa;
   box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.1);
+}
+
+/* Dropdown Menu Styles */
+.modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: transparent;
+  z-index: 1500;
+}
+
+.dropdown-menu {
+  position: fixed;
+  top: 65px;
+  right: 20px;
+  background: #ffffff;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+  padding: 20px;
+  padding-top: 25px;
+  min-width: 250px;
+  z-index: 1600;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-menu h3 {
+  margin: 0 0 16px 0;
+  color: var(--text-dark);
+  font-size: 18px;
+  text-align: center;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 12px;
+}
+
+.dropdown-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dropdown-btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 8px;
+  background: var(--primary-color);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.dropdown-btn:hover:not(:disabled) {
+  background: var(--primary-color-dark);
+  transform: translateX(4px);
+}
+
+.dropdown-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Settings Dropdown */
+.dropdown-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  background: var(--bg-light);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.setting-item:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.setting-item span {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+/* Settings icon buttons - minimal style without rectangles */
+.settings-icon-btn {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.settings-icon-btn:hover {
+  transform: scale(1.15);
+  color: var(--primary-color);
+}
+
+.dark-mode .settings-icon-btn {
+  color: #e2e8f0;
+}
+
+.dark-mode .settings-icon-btn:hover {
+  color: #a78bfa;
+}
+
+/* Position adjustments */
+.settings-dropdown {
+  right: 155px;
+  min-width: 120px;
+}
+
+.game-menu-dropdown {
+  right: 15px;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  width: 50px;
+  height: 26px;
+  background: var(--neutral-gray);
+  border-radius: 13px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.toggle-switch.active {
+  background: var(--primary-color);
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch.active .toggle-slider {
+  transform: translateX(24px);
+}
+
+/* Dark mode for dropdowns */
+.dark-mode .dropdown-menu {
+  background: #1f2937;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .setting-item {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .setting-item:hover {
+  background: rgba(255, 255, 255, 0.1);
 }

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
+import { motion } from 'framer-motion'
 import GameBoard from './components/GameBoard'
 import DiceRoller from './components/DiceRoller'
 import PairingSelector from './components/PairingSelector'
 import PlayerInfo from './components/PlayerInfo'
 import BrainIcon from './components/BrainIcon'
+import BrainIconSVG from './components/BrainIconSVG'
 import BustProbability from './components/BustProbability'
 import { API_BASE_URL } from './config'
 import './App.css'
@@ -27,9 +29,33 @@ function App() {
   const [hoveredNumber, setHoveredNumber] = useState(null)
   const [hoveredSum, setHoveredSum] = useState(null) // For hovering individual sums in choose-one
   const [showProbSidebar, setShowProbSidebar] = useState(false)
+  const [probSidebarSticky, setProbSidebarSticky] = useState(false)
   const [player1Name, setPlayer1Name] = useState('Player 1')
   const [player2Name, setPlayer2Name] = useState('Player 2')
-  const [showNameEditor, setShowNameEditor] = useState(false)
+  const [showGameMenu, setShowGameMenu] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [isLoadingFile, setIsLoadingFile] = useState(false)
+
+  // Helper function to convert string keys to integers in game state
+  const normalizeGameState = (state) => {
+    const normalized = { ...state }
+    if (normalized.player1_permanent) {
+      normalized.player1_permanent = Object.fromEntries(
+        Object.entries(normalized.player1_permanent).map(([k, v]) => [parseInt(k), v])
+      )
+    }
+    if (normalized.player2_permanent) {
+      normalized.player2_permanent = Object.fromEntries(
+        Object.entries(normalized.player2_permanent).map(([k, v]) => [parseInt(k), v])
+      )
+    }
+    if (normalized.temp_progress) {
+      normalized.temp_progress = Object.fromEntries(
+        Object.entries(normalized.temp_progress).map(([k, v]) => [parseInt(k), v])
+      )
+    }
+    return normalized
+  }
 
   // Create new game on mount
   useEffect(() => {
@@ -52,6 +78,26 @@ function App() {
     }
   }, [gameState, lastDice])
 
+  // Handle clicks outside dropdowns
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      // Check if click is outside all dropdowns and buttons
+      const isDropdown = event.target.closest('.dropdown-menu')
+      const isButton = event.target.closest('.toggle-btn')
+      const isProbSidebar = event.target.closest('.prob-sidebar')
+
+      if (!isDropdown && !isButton && !isProbSidebar) {
+        // Clicked outside - close settings and game menu, but NOT brain
+        setShowGameMenu(false)
+        setShowSettings(false)
+        // Brain modal stays open when clicking outside
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const createNewGame = async () => {
     setLoading(true)
     try {
@@ -60,7 +106,7 @@ function App() {
         player2_name: player2Name
       })
       setGameId(response.data.game_id)
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
       setSelectedPairing(null)
       // Update player names from response in case they were modified
       if (response.data.state.player1_name) setPlayer1Name(response.data.state.player1_name)
@@ -97,33 +143,48 @@ function App() {
 
   const loadGame = async (event) => {
     const file = event.target.files[0]
-    if (!file) return
+    if (!file) {
+      console.log('No file selected')
+      setIsLoadingFile(false)
+      return
+    }
 
+    console.log('Loading file:', file.name)
     setLoading(true)
+    setIsLoadingFile(true)
     try {
       const formData = new FormData()
       formData.append('file', file)
 
+      console.log('Sending request to:', `${API_BASE}/games/load`)
       const response = await axios.post(`${API_BASE}/games/load`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
 
-      // Set the new game ID and state
-      setGameId(response.data.game_id)
-      setGameState(response.data.state)
-      setSelectedPairing(null)
-      // Update player names from loaded game
-      if (response.data.state.player1_name) setPlayer1Name(response.data.state.player1_name)
-      if (response.data.state.player2_name) setPlayer2Name(response.data.state.player2_name)
+      console.log('Load response:', response.data)
 
+      // Set the new game ID and state (normalize keys from strings to integers)
+      setGameId(response.data.game_id)
+      const normalizedState = normalizeGameState(response.data.state)
+      setGameState(normalizedState)
+      setSelectedPairing(null)
+      setLastDice(null) // Reset dice display
+      // Update player names from loaded game
+      if (normalizedState.player1_name) setPlayer1Name(normalizedState.player1_name)
+      if (normalizedState.player2_name) setPlayer2Name(normalizedState.player2_name)
+
+      setShowGameMenu(false) // Close menu after successful load
+      console.log('Game loaded successfully!')
       alert('Game loaded successfully!')
     } catch (error) {
       console.error('Error loading game:', error)
-      alert('Failed to load game. Please check the file format.')
+      console.error('Error response:', error.response?.data)
+      alert(`Failed to load game: ${error.response?.data?.detail || error.message}`)
     } finally {
       setLoading(false)
+      setIsLoadingFile(false)
       // Reset file input
       event.target.value = null
     }
@@ -148,7 +209,7 @@ function App() {
       console.log('valid_pairings:', response.data.state?.valid_pairings)
       console.log('is_bust:', response.data.state?.is_bust)
       console.log('====================')
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
     } catch (error) {
       console.error('Error rolling dice:', error)
     } finally {
@@ -193,7 +254,7 @@ function App() {
       // Wait for animation
       await new Promise(resolve => setTimeout(resolve, 800))
 
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
       setSelectedPairing(null)
       setChosenNumber(null)
       setModalPosition(null)
@@ -225,7 +286,7 @@ function App() {
 
     try {
       const response = await axios.post(`${API_BASE}/games/${gameId}/stop`)
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
       setSelectedPairing(null)
     } catch (error) {
       console.error('Error stopping turn:', error)
@@ -241,7 +302,7 @@ function App() {
 
     try {
       const response = await axios.post(`${API_BASE}/games/${gameId}/continue`)
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
     } catch (error) {
       console.error('Error continuing after bust:', error)
     } finally {
@@ -256,7 +317,7 @@ function App() {
 
     try {
       const response = await axios.post(`${API_BASE}/games/${gameId}/undo`)
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
       setSelectedPairing(null)
     } catch (error) {
       console.error('Error undoing:', error)
@@ -272,7 +333,7 @@ function App() {
 
     try {
       const response = await axios.post(`${API_BASE}/games/${gameId}/redo`)
-      setGameState(response.data.state)
+      setGameState(normalizeGameState(response.data.state))
       setSelectedPairing(null)
     } catch (error) {
       console.error('Error redoing:', error)
@@ -449,100 +510,64 @@ function App() {
   return (
     <div className={`app-container ${darkMode ? 'dark-mode' : ''}`}>
       <header className="app-header">
-        <h1>Can't Stop</h1>
+        <h1>CAN'T STOP!!</h1>
         <div className="header-controls">
           <button
-            className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
-            onClick={() => setShowNameEditor(!showNameEditor)}
-            title="Edit player names"
+            className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'} ${showSettings ? 'sticky-active' : ''}`}
+            onClick={() => {
+              // Close others
+              setShowGameMenu(false)
+              setShowProbSidebar(false)
+              setProbSidebarSticky(false)
+              // Toggle this one
+              setShowSettings(!showSettings)
+            }}
+            title="Settings"
           >
-            ✎
+            ⚙
           </button>
           <button
-            className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
-            onClick={() => setDarkMode(!darkMode)}
-            title="Toggle dark mode"
+            className={`toggle-btn brain-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'} ${showProbSidebar ? 'sticky-active' : ''}`}
+            onClick={() => {
+              // Close others
+              setShowGameMenu(false)
+              setShowSettings(false)
+              // Toggle this one
+              setProbSidebarSticky(!probSidebarSticky)
+              setShowProbSidebar(!probSidebarSticky)
+            }}
+            title={showProbSidebar ? "Click to close probabilities" : "Click to open probabilities"}
           >
-            {darkMode ? '☼' : '☾'}
+            <BrainIconSVG width={24} height={24} />
           </button>
           <button
-            className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
-            onClick={() => setShowCellNumbers(!showCellNumbers)}
-            title="Toggle cell numbers"
+            className={`toggle-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'} ${showGameMenu ? 'sticky-active' : ''}`}
+            onClick={() => {
+              // Close others
+              setShowSettings(false)
+              setShowProbSidebar(false)
+              setProbSidebarSticky(false)
+              // Toggle this one
+              setShowGameMenu(!showGameMenu)
+            }}
+            title="Game Menu"
           >
-            #
-          </button>
-          <button
-            className={`toggle-btn brain-btn ${darkMode ? 'dark-mode-btn' : 'light-mode-btn'}`}
-            onMouseEnter={() => setShowProbSidebar(true)}
-            onMouseLeave={() => setShowProbSidebar(false)}
-            title="Show bust probability analysis"
-          >
-            <BrainIcon size={20} />
-          </button>
-          <button className="new-game-btn" onClick={saveGame} disabled={loading || !gameId}>
-            Save
-          </button>
-          <label className="new-game-btn" style={{ cursor: 'pointer', margin: 0 }}>
-            Load
-            <input
-              type="file"
-              accept=".csp,.json"
-              onChange={loadGame}
-              style={{ display: 'none' }}
-              disabled={loading}
-            />
-          </label>
-          <button className="new-game-btn" onClick={createNewGame} disabled={loading}>
-            New Game
+            ☰
           </button>
         </div>
       </header>
 
-      {/* Player name editor modal */}
-      {showNameEditor && (
-        <div className="modal-backdrop" onClick={() => setShowNameEditor(false)}>
-          <div className="name-editor-modal" onClick={(e) => e.stopPropagation()}>
-            <h3>Edit Player Names</h3>
-            <div className="name-input-group">
-              <label>Player 1:</label>
-              <input
-                type="text"
-                value={player1Name}
-                onChange={(e) => setPlayer1Name(e.target.value)}
-                placeholder="Player 1"
-              />
-            </div>
-            <div className="name-input-group">
-              <label>Player 2:</label>
-              <input
-                type="text"
-                value={player2Name}
-                onChange={(e) => setPlayer2Name(e.target.value)}
-                placeholder="Player 2"
-              />
-            </div>
-            <div className="name-editor-actions">
-              <button className="primary-btn" onClick={() => setShowNameEditor(false)}>
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <main className="game-container">
+      <main className={`game-container ${showProbSidebar ? 'sidebar-open' : ''}`}>
         <div className="game-layout">
           {/* Left sidebar - Player 1 info */}
           <aside className={`player-sidebar player-1-sidebar ${currentPlayer === 1 ? 'active-player' : ''}`}>
             <PlayerInfo
               playerNumber={1}
-              playerName={gameState.player1_name || player1Name}
+              playerName={player1Name}
               permanent={gameState.player1_permanent}
               completed={gameState.player1_completed}
               isActive={currentPlayer === 1}
               columnLengths={gameState.column_lengths}
-              playerName={player1Name}
               setPlayerName={setPlayer1Name}
             />
           </aside>
@@ -558,6 +583,8 @@ function App() {
               sumColorMap={sumColorMap}
               onUndo={handleUndo}
               onRedo={handleRedo}
+              player1Name={player1Name}
+              player2Name={player2Name}
             />
 
             <div className="game-controls">
@@ -614,12 +641,11 @@ function App() {
           <aside className={`player-sidebar player-2-sidebar ${currentPlayer === 2 ? 'active-player' : ''}`}>
             <PlayerInfo
               playerNumber={2}
-              playerName={gameState.player2_name || player2Name}
+              playerName={player2Name}
               permanent={gameState.player2_permanent}
               completed={gameState.player2_completed}
               isActive={currentPlayer === 2}
               columnLengths={gameState.column_lengths}
-              playerName={player2Name}
               setPlayerName={setPlayer2Name}
             />
           </aside>
@@ -631,7 +657,13 @@ function App() {
       </footer>
 
       {/* Bust Probability Sidebar */}
-      <BustProbability gameState={gameState} visible={showProbSidebar} />
+      <BustProbability
+        gameState={gameState}
+        visible={showProbSidebar}
+        hoveredPairing={hoveredPairing}
+        hoveredSum={hoveredSum}
+        sumColorMap={sumColorMap}
+      />
 
       {/* Winner overlay - similar to bust overlay but happy */}
       {gameState.game_over && (
@@ -657,6 +689,58 @@ function App() {
             Play Again
           </motion.button>
         </>
+      )}
+
+      {/* Game Menu Dropdown */}
+      {showGameMenu && (
+        <div className="dropdown-menu game-menu-dropdown">
+          <h3>Game Menu</h3>
+          <div className="dropdown-buttons">
+            <button className="dropdown-btn" onClick={() => { createNewGame(); setShowGameMenu(false); }} disabled={loading}>
+              New Game
+            </button>
+            <button className="dropdown-btn" onClick={() => { saveGame(); setShowGameMenu(false); }} disabled={loading || !gameId}>
+              Save Game
+            </button>
+            <label
+              className="dropdown-btn"
+              style={{ cursor: 'pointer', margin: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+              onClick={() => setIsLoadingFile(true)}
+            >
+              Load Game
+              <input
+                type="file"
+                accept=".csp,.json"
+                onChange={loadGame}
+                onClick={(e) => e.stopPropagation()}
+                style={{ display: 'none' }}
+                disabled={loading}
+              />
+            </label>
+          </div>
+        </div>
+      )}
+
+      {/* Settings Dropdown */}
+      {showSettings && (
+        <div className="dropdown-menu settings-dropdown">
+          <div className="dropdown-buttons">
+            <button
+              className="settings-icon-btn"
+              onClick={() => setDarkMode(!darkMode)}
+              title={darkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {darkMode ? '☼' : '☾'}
+            </button>
+            <button
+              className="settings-icon-btn"
+              onClick={() => setShowCellNumbers(!showCellNumbers)}
+              title={showCellNumbers ? "Hide Cell Numbers" : "Show Cell Numbers"}
+            >
+              #
+            </button>
+          </div>
+        </div>
       )}
 
     </div>

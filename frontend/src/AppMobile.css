@@ -1,0 +1,525 @@
+/* Mobile-First Responsive Design for Can't Stop Game */
+/* Base styles for mobile (320px+) */
+
+@import './colors.css';
+
+.mobile-app {
+  min-height: 100vh;
+  min-height: 100dvh; /* Use dynamic viewport height for mobile */
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow-x: hidden;
+  position: relative;
+  touch-action: pan-y pinch-zoom;
+}
+
+/* ==================== HEADER ==================== */
+
+.mobile-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  min-height: 50px;
+}
+
+.mobile-header-left,
+.mobile-header-right {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.mobile-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  text-align: center;
+  letter-spacing: 0.5px;
+  flex-shrink: 0;
+}
+
+.mobile-menu-btn {
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.95);
+  background: var(--button-hover-bg);
+}
+
+/* ==================== DROPDOWNS ==================== */
+
+.mobile-dropdown-menu {
+  position: absolute;
+  top: 60px;
+  left: 1rem;
+  right: 1rem;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-dropdown-menu h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.mobile-dropdown-menu button,
+.mobile-dropdown-menu .file-upload-btn {
+  width: 100%;
+  padding: 0.875rem;
+  margin-bottom: 0.5rem;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-dropdown-menu button:active,
+.mobile-dropdown-menu .file-upload-btn:active {
+  transform: scale(0.98);
+  background: var(--button-hover-bg);
+}
+
+.mobile-dropdown-menu button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mobile-dropdown-menu button:last-child {
+  margin-bottom: 0;
+}
+
+.file-upload-btn {
+  display: block;
+  text-align: center;
+}
+
+/* ==================== CURRENT PLAYER INDICATOR ==================== */
+
+.mobile-current-player {
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border-bottom: 2px solid var(--border-color);
+}
+
+.mobile-player-card {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 60px;
+}
+
+.mobile-player-card:active {
+  transform: scale(0.98);
+}
+
+.mobile-player-indicator {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  opacity: 0.6;
+}
+
+.mobile-player-indicator.player-1-active,
+.mobile-player-indicator.player-2-active {
+  opacity: 1;
+  font-weight: 700;
+}
+
+.mobile-player-indicator.player-1-active {
+  background: var(--player1-bg);
+  color: var(--player1-text);
+  border: 2px solid var(--player1-border);
+}
+
+.mobile-player-indicator.player-2-active {
+  background: var(--player2-bg);
+  color: var(--player2-text);
+  border: 2px solid var(--player2-border);
+}
+
+.mobile-player-indicator .player-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.mobile-player-indicator .completed-count {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.vs-divider {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+/* ==================== PLAYER INFO MODAL ==================== */
+
+.mobile-player-info-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.mobile-player-info-content {
+  background: var(--bg-secondary);
+  border: 3px solid var(--border-color);
+  border-radius: 16px;
+  padding: 1.5rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.close-modal-btn {
+  width: 100%;
+  padding: 0.875rem;
+  background: var(--button-bg);
+  color: var(--button-text);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.close-modal-btn:active {
+  transform: scale(0.98);
+  background: var(--button-hover-bg);
+}
+
+/* ==================== MAIN GAME AREA ==================== */
+
+.mobile-game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.mobile-board-container {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 0.5rem;
+  min-height: 0;
+}
+
+/* ==================== CONTROLS ==================== */
+
+.mobile-controls {
+  background: var(--bg-secondary);
+  border-top: 2px solid var(--border-color);
+  padding: 1rem;
+  position: sticky;
+  bottom: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ==================== LOADING ==================== */
+
+.mobile-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+/* ==================== WINNER OVERLAY ==================== */
+
+.mobile-winner-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 400;
+  background: rgba(0, 0, 0, 0.9);
+  border: 4px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2rem;
+  min-width: 280px;
+}
+
+.mobile-winner-overlay .winner-name {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+}
+
+.mobile-winner-overlay .winner-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.mobile-winner-overlay.player-1-wins {
+  border-color: var(--player1-border);
+  color: var(--player1-text);
+  background: linear-gradient(135deg, rgba(var(--player1-bg-rgb), 0.95), rgba(0, 0, 0, 0.9));
+}
+
+.mobile-winner-overlay.player-2-wins {
+  border-color: var(--player2-border);
+  color: var(--player2-text);
+  background: linear-gradient(135deg, rgba(var(--player2-bg-rgb), 0.95), rgba(0, 0, 0, 0.9));
+}
+
+.mobile-play-again-btn {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1rem 2.5rem;
+  background: var(--accent-color);
+  color: white;
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  cursor: pointer;
+  z-index: 401;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 56px;
+}
+
+.mobile-play-again-btn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+/* ==================== DARK MODE ==================== */
+
+.mobile-app.dark-mode {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f1419;
+  --text-primary: #eee;
+  --text-secondary: #aaa;
+  --border-color: #444;
+  --button-bg: #2d3748;
+  --button-text: #eee;
+  --button-hover-bg: #3a4556;
+  --accent-color: #4a9eff;
+  --player1-bg: #c44569;
+  --player1-bg-rgb: 196, 69, 105;
+  --player1-text: #fff;
+  --player1-border: #e66789;
+  --player2-bg: #3c6382;
+  --player2-bg-rgb: 60, 99, 130;
+  --player2-text: #fff;
+  --player2-border: #5f89ac;
+}
+
+.mobile-app:not(.dark-mode) {
+  --bg-primary: #f5f5f5;
+  --bg-secondary: #fff;
+  --bg-tertiary: #e0e0e0;
+  --text-primary: #222;
+  --text-secondary: #666;
+  --border-color: #ccc;
+  --button-bg: #e0e0e0;
+  --button-text: #222;
+  --button-hover-bg: #d0d0d0;
+  --accent-color: #2196f3;
+  --player1-bg: #ff6b9d;
+  --player1-bg-rgb: 255, 107, 157;
+  --player1-text: #fff;
+  --player1-border: #ff4081;
+  --player2-bg: #4fc3f7;
+  --player2-bg-rgb: 79, 195, 247;
+  --player2-text: #fff;
+  --player2-border: #0288d1;
+}
+
+/* ==================== TABLET BREAKPOINT (768px+) ==================== */
+
+@media (min-width: 768px) {
+  .mobile-title {
+    font-size: 1.75rem;
+  }
+
+  .mobile-header {
+    padding: 1rem 1.5rem;
+  }
+
+  .mobile-dropdown-menu {
+    max-width: 400px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .mobile-current-player {
+    padding: 1rem 1.5rem;
+  }
+
+  .mobile-player-card {
+    padding: 1rem;
+  }
+
+  .mobile-player-indicator .player-name {
+    font-size: 1.1rem;
+  }
+
+  .mobile-board-container {
+    padding: 1.5rem 1rem;
+  }
+
+  .mobile-controls {
+    padding: 1.5rem;
+  }
+}
+
+/* ==================== DESKTOP BREAKPOINT (1024px+) ==================== */
+
+@media (min-width: 1024px) {
+  .mobile-app {
+    max-width: 1400px;
+    margin: 0 auto;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-title {
+    font-size: 2rem;
+  }
+
+  .mobile-header {
+    padding: 1.25rem 2rem;
+  }
+
+  .mobile-menu-btn {
+    font-size: 1.5rem;
+    padding: 0.75rem 1rem;
+    min-width: 52px;
+    min-height: 52px;
+  }
+
+  .mobile-menu-btn:hover {
+    background: var(--button-hover-bg);
+    transform: scale(1.05);
+  }
+
+  .mobile-menu-btn:active {
+    transform: scale(0.98);
+  }
+
+  .mobile-dropdown-menu button:hover,
+  .mobile-dropdown-menu .file-upload-btn:hover,
+  .close-modal-btn:hover {
+    background: var(--button-hover-bg);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-player-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+
+  .mobile-current-player {
+    padding: 1.25rem 2rem;
+  }
+
+  .mobile-player-card {
+    padding: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .mobile-board-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .mobile-controls {
+    padding: 1.5rem 2rem;
+  }
+
+  .mobile-play-again-btn:hover {
+    transform: translateX(-50%) scale(1.05);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* ==================== LARGE DESKTOP (1440px+) ==================== */
+
+@media (min-width: 1440px) {
+  .mobile-app {
+    max-width: 1600px;
+  }
+
+  .mobile-title {
+    font-size: 2.25rem;
+  }
+}

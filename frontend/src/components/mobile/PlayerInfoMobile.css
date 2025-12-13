@@ -1,0 +1,182 @@
+/* Mobile Player Info Styles */
+
+.mobile-player-info {
+  background: var(--bg-primary);
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.mobile-player-info.active {
+  border-width: 4px;
+}
+
+.mobile-player-info.player-1 {
+  border-color: var(--player1-border);
+}
+
+.mobile-player-info.player-2 {
+  border-color: var(--player2-border);
+}
+
+.mobile-player-info.player-1.active {
+  background: linear-gradient(135deg, rgba(var(--player1-bg-rgb), 0.1) 0%, var(--bg-primary) 100%);
+  box-shadow: 0 0 20px rgba(var(--player1-bg-rgb), 0.3);
+}
+
+.mobile-player-info.player-2.active {
+  background: linear-gradient(135deg, rgba(var(--player2-bg-rgb), 0.1) 0%, var(--bg-primary) 100%);
+  box-shadow: 0 0 20px rgba(var(--player2-bg-rgb), 0.3);
+}
+
+.mobile-player-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.mobile-player-name {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.mobile-player-info.player-1 .mobile-player-name {
+  color: var(--player1-text);
+}
+
+.mobile-player-info.player-2 .mobile-player-name {
+  color: var(--player2-text);
+}
+
+.mobile-completion-status {
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+}
+
+.mobile-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(11, 1fr);
+  gap: 0.5rem;
+}
+
+.mobile-progress-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mobile-progress-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.mobile-progress-bar-container {
+  width: 100%;
+  height: 60px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.mobile-progress-bar {
+  width: 100%;
+  transition: height 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.mobile-progress-bar.player-1-bar {
+  background: linear-gradient(180deg, var(--player1-bg) 0%, rgba(var(--player1-bg-rgb), 0.7) 100%);
+}
+
+.mobile-progress-bar.player-2-bar {
+  background: linear-gradient(180deg, var(--player2-bg) 0%, rgba(var(--player2-bg-rgb), 0.7) 100%);
+}
+
+.mobile-progress-bar.completed {
+  background: linear-gradient(180deg, gold 0%, #ffa500 100%);
+  animation: shine 2s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.mobile-progress-text {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+.mobile-complete-check {
+  font-size: 0.85rem;
+  color: gold;
+  font-weight: 700;
+}
+
+/* ==================== TABLET (768px+) ==================== */
+
+@media (min-width: 768px) {
+  .mobile-player-info {
+    padding: 1.25rem;
+  }
+
+  .mobile-player-name {
+    font-size: 1.5rem;
+  }
+
+  .mobile-completion-status {
+    font-size: 1rem;
+  }
+
+  .mobile-progress-bar-container {
+    height: 80px;
+  }
+
+  .mobile-progress-label {
+    font-size: 0.85rem;
+  }
+
+  .mobile-progress-text {
+    font-size: 0.75rem;
+  }
+}
+
+/* ==================== DESKTOP (1024px+) ==================== */
+
+@media (min-width: 1024px) {
+  .mobile-progress-bar-container {
+    height: 100px;
+  }
+
+  .mobile-progress-text {
+    font-size: 0.85rem;
+  }
+}

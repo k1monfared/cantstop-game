@@ -1,0 +1,229 @@
+/* Mobile Pairing Selector Styles */
+
+.mobile-pairing-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobile-pairing-header {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mobile-pairings-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+.mobile-pairing-card {
+  background: var(--bg-primary);
+  border: 3px solid var(--border-color);
+  border-radius: 12px;
+  padding: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-pairing-card.valid {
+  border-color: var(--accent-color);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, rgba(var(--accent-color-rgb, 74, 158, 255), 0.1) 100%);
+}
+
+.mobile-pairing-card.invalid {
+  opacity: 0.4;
+  filter: grayscale(0.5);
+}
+
+.mobile-pairing-card.chosen {
+  background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.2);
+  border-color: var(--accent-color);
+  border-width: 4px;
+}
+
+.mobile-pairing-card.bust {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.mobile-pairing-sums {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.mobile-sum-box {
+  flex: 1;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  min-height: 70px;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.mobile-sum-box.active {
+  background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.2);
+  border-color: var(--accent-color);
+  border-width: 3px;
+}
+
+.mobile-sum-box.completed {
+  background: var(--bg-tertiary);
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.mobile-sum-box.unplayable {
+  opacity: 0.4;
+  filter: grayscale(0.7);
+}
+
+.mobile-sum-box.clickable {
+  cursor: pointer;
+}
+
+.mobile-sum-box.clickable:active {
+  transform: scale(0.95);
+  background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.3);
+}
+
+.mobile-sum-number {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.mobile-runner-indicator {
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  animation: blink 1.5s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.mobile-plus {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.mobile-confirm-btn {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--accent-color);
+  color: white;
+  border: 2px solid var(--accent-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-confirm-btn:active {
+  transform: scale(0.95);
+  background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.8);
+}
+
+.mobile-choice-hint {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.mobile-chosen-indicator {
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent-color);
+  padding: 0.5rem;
+  background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.1);
+  border-radius: 6px;
+}
+
+/* ==================== TABLET (768px+) ==================== */
+
+@media (min-width: 768px) {
+  .mobile-pairings-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .mobile-pairing-card {
+    padding: 1rem;
+  }
+
+  .mobile-sum-box {
+    min-height: 80px;
+  }
+
+  .mobile-sum-number {
+    font-size: 2rem;
+  }
+}
+
+/* ==================== DESKTOP (1024px+) ==================== */
+
+@media (min-width: 1024px) {
+  .mobile-pairing-header {
+    font-size: 1.15rem;
+  }
+
+  .mobile-pairings-grid {
+    gap: 1rem;
+  }
+
+  .mobile-pairing-card {
+    padding: 1.25rem;
+  }
+
+  .mobile-sum-box {
+    min-height: 90px;
+  }
+
+  .mobile-sum-number {
+    font-size: 2.25rem;
+  }
+
+  .mobile-sum-box.clickable:hover {
+    transform: scale(1.05);
+    background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.3);
+  }
+
+  .mobile-confirm-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(var(--accent-color-rgb, 74, 158, 255), 0.4);
+  }
+
+  .mobile-confirm-btn:active {
+    transform: translateY(0) scale(0.98);
+  }
+}

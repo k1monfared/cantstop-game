@@ -15,6 +15,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:mobile": "vite --config vite.config.mobile.js",
+    "build:mobile": "vite build --config vite.config.mobile.js",
+    "preview:mobile": "vite preview --config vite.config.mobile.js"
   }
 }

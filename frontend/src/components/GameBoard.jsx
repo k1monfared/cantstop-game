@@ -2,11 +2,22 @@ import React from 'react'
 import { motion } from 'framer-motion'
 import './GameBoard.css'
 
-function GameBoard({ gameState, selectedPairing, animatingMove, showCellNumbers = false, previewColumns = [], sumColorMap = {}, onUndo, onRedo }) {
+function GameBoard({ gameState, selectedPairing, animatingMove, showCellNumbers = false, previewColumns = [], sumColorMap = {}, onUndo, onRedo, player1Name = "Player 1", player2Name = "Player 2" }) {
   const { column_lengths, player1_permanent, player2_permanent, temp_progress, active_runners } = gameState
 
   const getColumnHeight = (col) => {
     return column_lengths[col]
+  }
+
+  const getPlayerInitials = (playerName) => {
+    // Split by spaces and take first letter of each word
+    const words = playerName.trim().split(/\s+/)
+    if (words.length === 1) {
+      // Single word: take first two letters
+      return words[0].substring(0, 2).toUpperCase()
+    }
+    // Multiple words: take first letter of each word (max 3)
+    return words.slice(0, 3).map(w => w[0]).join('').toUpperCase()
   }
 
   const getPlayer1Progress = (col) => {
@@ -98,7 +109,7 @@ function GameBoard({ gameState, selectedPairing, animatingMove, showCellNumbers 
           return (
             <div key={col} className={`column ${active ? 'column-active' : ''}`}>
               <div className="column-header">
-                <span className="column-number">{col}</span>
+                <span className="board-column-number">{col}</span>
               </div>
 
               <div className="column-track">
@@ -182,14 +193,21 @@ function GameBoard({ gameState, selectedPairing, animatingMove, showCellNumbers 
                                 return (
                                   <motion.div
                                     key={`temp-${idx}`}
+                                    layoutId={`temp-marker-col${col}-player${currentPlayer}`}
                                     className={`cell-marker temp-marker player-${currentPlayer}-temp`}
                                     style={{ left: markerPos }}
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{
-                                      scale: animatingMove ? [0, 1.2, 1] : 1,
+                                      scale: 1,
                                       opacity: 1
                                     }}
-                                    transition={{ type: 'spring', stiffness: 200, damping: 10 }}
+                                    layout
+                                    transition={{
+                                      type: 'spring',
+                                      stiffness: 100,
+                                      damping: 20,
+                                      layout: { duration: 1.5 }
+                                    }}
                                   />
                                 )
                               }
@@ -228,7 +246,7 @@ function GameBoard({ gameState, selectedPairing, animatingMove, showCellNumbers 
 
               {completed && (
                 <div className={`completed-badge player-${completedBy}-badge`}>
-                  P{completedBy}
+                  {getPlayerInitials(completedBy === 1 ? player1Name : player2Name)}
                 </div>
               )}
             </div>

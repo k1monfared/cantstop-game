@@ -1,16 +1,16 @@
 .bust-probability-sidebar {
   position: fixed;
-  top: 60px;
-  right: 20px;
-  width: 340px;
-  max-height: calc(100vh - 80px);
+  top: 85px;
+  right: 0;
+  bottom: 45px;
+  width: 420px;
+  height: auto;
   background: var(--bg-white-solid);
-  border: 2px solid var(--primary-color);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+  border-left: 1px solid var(--border-light);
+  border-radius: 0;
   overflow-y: auto;
   z-index: 1000;
-  animation: slideInRight 0.3s ease-out;
+  transition: transform 0.3s ease-out;
 }
 
 @keyframes slideInRight {
@@ -49,6 +49,25 @@
   margin-bottom: 20px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--border-light);
+}
+
+/* Main probs row - side by side layout */
+.main-probs-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.main-probs-row .prob-item {
+  flex: 1;
+  min-width: 0;
+}
+
+.ev-card {
+  display: flex;
+  flex-direction: column;
 }
 
 .prob-section:last-child {
@@ -207,11 +226,466 @@
   font-weight: 600;
 }
 
+/* Bust Risk Progression */
+.prob-subsection-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bust-progression {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bust-risk-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: var(--bg-light);
+  border-radius: 6px;
+  border-left: 3px solid var(--error-color);
+}
+
+.risk-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-medium);
+}
+
+.risk-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--error-color);
+}
+
 /* Dark mode support */
 .dark-mode .bust-probability-sidebar {
   background: var(--bg-white-solid);
+  border-color: var(--border-light);
+}
+
+.dark-mode .bust-risk-item {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Column Probabilities Table */
+.column-table-wrapper {
+  overflow-x: auto;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.column-prob-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  table-layout: auto;
+}
+
+.column-prob-table thead {
+  display: table-header-group;
+}
+
+.column-prob-table thead tr {
+  display: table-row;
+}
+
+.column-prob-table thead th {
+  display: table-cell;
+  padding: 8px 4px;
+  text-align: center;
+  border-bottom: 2px solid var(--border-light);
+  vertical-align: middle;
+}
+
+.column-prob-table .metric-header {
+  width: 80px;
+  text-align: left;
+}
+
+.column-header {
+  position: relative;
+  min-width: 50px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+.column-header.hovered-column {
+  border-radius: 4px;
+}
+
+.column-header.hovered-pair1 .column-number {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px var(--pair-1-color);
+  background: var(--pair-1-color) !important;
+}
+
+.column-header.hovered-pair2 .column-number {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px var(--pair-2-color);
+  background: var(--pair-2-color) !important;
+}
+
+.column-header.active-column .column-number {
+  background: var(--primary-color);
+  color: white;
+}
+
+.column-header.potential-column .column-number {
+  background: var(--neutral-gray);
+  color: white;
+}
+
+.column-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 11px;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 11px;
+  padding: 0 4px;
+  background: var(--neutral-gray);
+  color: white;
+  box-shadow: none;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.potential-badge {
+  font-size: 8px;
+  color: var(--text-medium);
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 3px;
+  letter-spacing: 0.2px;
+}
+
+.column-prob-table tbody {
+  display: table-row-group;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-row td {
+  display: table-cell;
+  padding: 8px 4px;
+  text-align: center;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.table-row:last-child td {
+  border-bottom: none;
+}
+
+.metric-label {
+  font-weight: 600;
+  color: var(--text-dark);
+  text-align: left;
+  font-size: 11px;
+  padding-left: 8px;
+}
+
+.metric-value {
+  font-weight: 700;
+  color: var(--text-dark);
+  font-size: 13px;
+}
+
+.metric-value.advance-value {
+  color: var(--primary-color);
+}
+
+.metric-value.complete-value {
+  color: var(--success-color);
+}
+
+.dark-mode .column-table-wrapper {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .column-prob-table thead th {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-mode .table-row td {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Expected Value Section */
+.ev-section {
+  position: relative;
+}
+
+.ev-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.info-button-wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.info-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.info-button:hover {
+  background: var(--primary-color-dark);
+  transform: scale(1.1);
+}
+
+/* Old EV styles - no longer used with new card layout */
+/* .ev-value-display, .ev-main, .ev-number removed */
+
+/* Conditional EV - old version */
+/* Old conditional EV styles - commented out
+.conditional-ev {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  animation: fadeInEV 0.2s ease-in;
+}
+
+@keyframes fadeInEV {
+  from {
+    opacity: 0;
+    transform: translateX(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.conditional-ev-label {
+  font-size: 10px;
+  color: var(--text-medium);
+  font-weight: 600;
+  text-transform: lowercase;
+  letter-spacing: 0.3px;
+}
+
+.conditional-ev-number {
+  font-size: 16px;
+  font-weight: 700;
+}
+*/
+
+/* EV Info Popup */
+.ev-info-popup {
+  position: fixed;
+  top: 140px;
+  right: 30px;
+  width: 360px;
+  background: #ffffff;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  font-size: 12px;
+  pointer-events: auto;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+}
+
+/* Dark mode for EV info popup */
+.dark-mode .ev-info-popup {
+  background: #1a1a2e;
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .ev-info-header {
+  color: #667eea;
+  border-bottom-color: #667eea;
+}
+
+.dark-mode .ev-formula {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.dark-mode .formula-part {
+  color: #e0e0e0;
+}
+
+.dark-mode .formula-value {
+  color: #b0b0b0;
+}
+
+.dark-mode .ev-breakdown-item .breakdown-label,
+.dark-mode .ev-breakdown-item .breakdown-desc,
+.dark-mode .ev-breakdown-item .breakdown-value {
+  color: #e0e0e0;
+}
+
+.dark-mode .ev-interpretation {
+  background: rgba(102, 126, 234, 0.2);
+  border-left-color: #667eea;
+}
+
+.dark-mode .ev-interpretation strong,
+.dark-mode .ev-interpretation p {
+  color: #e0e0e0;
+}
+
+@keyframes popupFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ev-info-header {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  text-align: center;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 8px;
+}
+
+.ev-formula {
+  background: var(--bg-light);
+  padding: 8px;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+}
+
+.formula-grid {
+  display: grid;
+  grid-template-columns: auto auto auto auto auto auto auto auto auto;
+  gap: 4px;
+  justify-content: center;
+  align-items: center;
+}
+
+.formula-part {
+  font-weight: bold;
+  text-align: center;
+  padding: 2px 4px;
+  color: #1a1a1a;
+}
+
+.formula-value-cell {
+  text-align: center;
+  padding: 2px 4px;
+}
+
+.formula-value {
+  color: #667eea;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.ev-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.ev-breakdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+.ev-breakdown-item:last-child {
+  margin-bottom: 0;
+}
+
+.ev-breakdown-item .breakdown-label {
+  font-weight: 600;
+  color: #1a1a1a;
+  min-width: 60px;
+  flex-shrink: 0;
+}
+
+.ev-breakdown-item .breakdown-desc {
+  color: #666;
+  flex: 1;
+}
+
+.ev-breakdown-item .breakdown-value {
+  color: #1a1a1a;
+  font-weight: 600;
+  min-width: 70px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.ev-interpretation {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 8px;
+  border-radius: 6px;
+  border-left: 3px solid #667eea;
+}
+
+.ev-interpretation strong {
+  font-size: 11px;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.ev-interpretation p {
+  margin: 4px 0 0 0;
+  font-size: 11px;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Dark mode for EV section */
+.dark-mode .ev-value-display {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-mode .ev-info-popup {
+  background: rgba(31, 41, 55, 0.98);
   border-color: var(--primary-color);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .ev-formula,
+.dark-mode .ev-interpretation {
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .dark-mode .bust-prob-header {
@@ -247,11 +721,220 @@
   background: var(--primary-color-dark);
 }
 
+/* Safe probability header with info icon */
+.safe-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+}
+
+/* Safe info popup */
+.safe-info-popup {
+  position: fixed;
+  top: 140px;
+  right: 30px;
+  width: 380px;
+  background: #ffffff;
+  border: 2px solid var(--primary-color);
+  border-radius: 12px;
+  padding: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  font-size: 12px;
+  pointer-events: auto;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+}
+
+/* Dark mode for safe info popup */
+.dark-mode .safe-info-popup {
+  background: #1a1a2e;
+  border-color: #667eea;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.dark-mode .safe-info-header {
+  color: #667eea;
+  border-bottom-color: #667eea;
+}
+
+.dark-mode .safe-info-summary {
+  background: rgba(102, 126, 234, 0.2);
+  color: #e0e0e0;
+}
+
+.dark-mode .safe-breakdown-section {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.dark-mode .breakdown-subtitle {
+  color: #667eea;
+}
+
+.dark-mode .breakdown-label {
+  color: #b0b0b0;
+}
+
+.dark-mode .breakdown-value {
+  color: #e0e0e0;
+}
+
+.dark-mode .breakdown-percent {
+  color: #999;
+}
+
+.dark-mode .safe-info-note {
+  background: rgba(255, 200, 100, 0.1);
+  border-left-color: #ffa500;
+  color: #e0e0e0;
+}
+
+.safe-info-header {
+  font-weight: 700;
+  font-size: 15px;
+  color: var(--primary-color);
+  margin-bottom: 12px;
+  text-align: center;
+  border-bottom: 2px solid var(--primary-color);
+  padding-bottom: 8px;
+}
+
+.safe-info-summary {
+  background: rgba(102, 126, 234, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-size: 12px;
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.safe-breakdown-section {
+  margin-bottom: 12px;
+  padding: 10px;
+  background: rgba(102, 126, 234, 0.03);
+  border-radius: 6px;
+}
+
+.breakdown-subtitle {
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.breakdown-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.breakdown-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 0;
+}
+
+.breakdown-label {
+  color: #666;
+  font-size: 12px;
+}
+
+.breakdown-value {
+  font-weight: 600;
+  color: #1a1a1a;
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  text-align: right;
+}
+
+.breakdown-percent {
+  color: #888;
+  font-size: 11px;
+  font-style: italic;
+  min-width: 45px;
+  text-align: right;
+}
+
+.safe-info-note {
+  background: rgba(255, 200, 100, 0.15);
+  border-left: 3px solid #ffa500;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+
+/* EV value styling - match safe probability */
+.ev-value-container {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin: 8px 0;
+}
+
+.prob-value.ev {
+  font-size: 36px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1;
+  transition: color 0.3s ease;
+}
+
+/* EV color coding based on value */
+.prob-value.ev.ev-good {
+  color: #22c55e;
+}
+
+.prob-value.ev.ev-neutral {
+  color: #eab308;
+}
+
+.prob-value.ev.ev-bad {
+  color: #ef4444;
+}
+
+.ev-unit-label {
+  position: absolute;
+  right: 10px;
+  top: 2px;
+  font-size: 11px;
+  color: #888;
+  font-weight: 500;
+  padding-left: 12px;
+}
+
+/* Dark mode for EV value */
+.dark-mode .prob-value.ev.ev-good {
+  color: #4ade80;
+}
+
+.dark-mode .prob-value.ev.ev-neutral {
+  color: #facc15;
+}
+
+.dark-mode .prob-value.ev.ev-bad {
+  color: #f87171;
+}
+
+.dark-mode .ev-unit-label {
+  color: #999;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .bust-probability-sidebar {
     right: 10px;
     width: calc(100vw - 20px);
-    max-width: 340px;
+    max-width: 420px;
   }
 }

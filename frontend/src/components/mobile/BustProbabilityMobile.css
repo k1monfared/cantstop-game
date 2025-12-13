@@ -1,0 +1,196 @@
+/* Mobile Bust Probability Panel */
+
+.mobile-prob-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 90%;
+  max-width: 400px;
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--border-color);
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+  z-index: 250;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-prob-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.25rem;
+  background: var(--bg-primary);
+  border-bottom: 2px solid var(--border-color);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.mobile-prob-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
+.mobile-prob-close {
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-primary);
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-prob-close:active {
+  background: var(--bg-tertiary);
+  transform: scale(0.9);
+}
+
+.mobile-prob-content {
+  flex: 1;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.mobile-prob-card {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.mobile-prob-card.main-prob {
+  background: linear-gradient(135deg, rgba(var(--accent-color-rgb, 74, 158, 255), 0.1) 0%, var(--bg-primary) 100%);
+  border-color: var(--accent-color);
+  border-width: 3px;
+}
+
+.mobile-prob-label {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.mobile-prob-value {
+  font-size: 3rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1;
+}
+
+.mobile-prob-value.safe-value {
+  color: var(--accent-color);
+}
+
+.mobile-prob-desc {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+.mobile-bust-risks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.mobile-risk-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.risk-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.risk-value {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #ff9800;
+}
+
+.mobile-active-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.mobile-active-column-badge {
+  background: var(--accent-color);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  min-width: 50px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* ==================== TABLET (768px+) ==================== */
+
+@media (min-width: 768px) {
+  .mobile-prob-panel {
+    max-width: 450px;
+  }
+
+  .mobile-prob-header {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .mobile-prob-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .mobile-prob-content {
+    padding: 1.5rem;
+  }
+
+  .mobile-prob-card {
+    padding: 1.25rem;
+  }
+
+  .mobile-prob-value {
+    font-size: 3.5rem;
+  }
+}
+
+/* ==================== DESKTOP (1024px+) ==================== */
+
+@media (min-width: 1024px) {
+  .mobile-prob-close:hover {
+    background: var(--bg-tertiary);
+    transform: scale(1.1);
+  }
+
+  .mobile-prob-panel {
+    max-width: 500px;
+  }
+}
