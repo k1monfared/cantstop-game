@@ -1,0 +1,99 @@
+.player-indicator {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: none;
+  border-bottom: 2px solid var(--border-color);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.2s ease;
+  font-family: inherit;
+  gap: 0.75rem;
+}
+
+.player-indicator:active {
+  background: var(--bg-tertiary);
+}
+
+.player-indicator-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  opacity: 0.6;
+}
+
+.player-indicator-side.active {
+  opacity: 1;
+  background: rgba(124, 58, 237, 0.1);
+  border: 2px solid rgba(124, 58, 237, 0.3);
+}
+
+.player-indicator-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.player-indicator-score {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  padding: 0.125rem 0.5rem;
+  border-radius: 12px;
+}
+
+.player-indicator-divider {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  opacity: 0.5;
+}
+
+/* Dark mode */
+.mobile-app.dark-mode .player-indicator {
+  background: #1f2937;
+  border-bottom-color: rgba(124, 58, 237, 0.3);
+}
+
+.mobile-app.dark-mode .player-indicator:active {
+  background: #16213e;
+}
+
+.mobile-app.dark-mode .player-indicator-side.active {
+  background: rgba(167, 139, 250, 0.15);
+  border-color: rgba(167, 139, 250, 0.4);
+}
+
+.mobile-app.dark-mode .player-indicator-score {
+  background: rgba(255, 255, 255, 0.05);
+  color: #a78bfa;
+}
+
+/* Light mode */
+.mobile-app:not(.dark-mode) .player-indicator {
+  background: white;
+  border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+
+.mobile-app:not(.dark-mode) .player-indicator:active {
+  background: #f5f5f5;
+}
+
+.mobile-app:not(.dark-mode) .player-indicator-side.active {
+  background: rgba(109, 40, 217, 0.1);
+  border-color: rgba(109, 40, 217, 0.3);
+}
+
+.mobile-app:not(.dark-mode) .player-indicator-score {
+  background: rgba(0, 0, 0, 0.05);
+  color: #6d28d9;
+}

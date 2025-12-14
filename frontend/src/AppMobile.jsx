@@ -5,6 +5,9 @@ import GameBoardMobile from './components/mobile/GameBoardMobile'
 import DiceRollerMobile from './components/mobile/DiceRollerMobile'
 import PairingSelectorMobile from './components/mobile/PairingSelectorMobile'
 import PlayerInfoMobile from './components/mobile/PlayerInfoMobile'
+import PlayerIndicator from './components/mobile/PlayerIndicator'
+import FloatingActionButton from './components/mobile/FloatingActionButton'
+import BottomSheet from './components/mobile/BottomSheet'
 import BrainIconSVG from './components/BrainIconSVG'
 import BustProbabilityMobile from './components/mobile/BustProbabilityMobile'
 import { API_BASE_URL } from './config'
@@ -28,6 +31,9 @@ function AppMobile() {
   const [showGameMenu, setShowGameMenu] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showPlayerInfo, setShowPlayerInfo] = useState(false)
+  const [showQuickMenu, setShowQuickMenu] = useState(false)
+  const [headerVisible, setHeaderVisible] = useState(true)
+  const [lastScrollY, setLastScrollY] = useState(0)
 
   // Helper function to convert string keys to integers in game state
   const normalizeGameState = (state) => {
@@ -74,12 +80,14 @@ function AppMobile() {
   useEffect(() => {
     const handleClickOutside = (event) => {
       const isDropdown = event.target.closest('.mobile-dropdown-menu')
+      const isBottomSheet = event.target.closest('.bottom-sheet')
       const isButton = event.target.closest('.mobile-menu-btn')
       const isProbSidebar = event.target.closest('.mobile-prob-panel')
 
-      if (!isDropdown && !isButton && !isProbSidebar) {
+      if (!isDropdown && !isBottomSheet && !isButton && !isProbSidebar) {
         setShowGameMenu(false)
         setShowSettings(false)
+        setShowQuickMenu(false)
       }
     }
 
@@ -90,6 +98,26 @@ function AppMobile() {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
+
+  // Scroll detection for collapsible header
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY
+
+      // Show header when scrolling up or at top
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        setHeaderVisible(true)
+      } else if (currentScrollY > lastScrollY && currentScrollY > 50) {
+        // Hide header when scrolling down
+        setHeaderVisible(false)
+      }
+
+      setLastScrollY(currentScrollY)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [lastScrollY])
 
   const createNewGame = async () => {
     setLoading(true)
@@ -274,7 +302,14 @@ function AppMobile() {
   if (!gameState) {
     return (
       <div className={`mobile-app ${darkMode ? 'dark-mode' : ''}`}>
-        <div className="mobile-loading">Loading game...</div>
+        <div className="mobile-loading">
+          <div>
+            <div>Loading game...</div>
+            <div style={{ fontSize: '0.9rem', marginTop: '1rem', opacity: 0.8 }}>
+              Note: This app is hosted on a free server, so it may take a minute to start up.
+            </div>
+          </div>
+        </div>
       </div>
     )
   }
@@ -309,158 +344,95 @@ function AppMobile() {
 
   return (
     <div className={`mobile-app ${darkMode ? 'dark-mode' : ''}`}>
-      {/* Mobile Header */}
-      <header className="mobile-header">
-        <div className="mobile-header-left">
+      {/* Header removed - everything in FAB menu */}
+
+      {/* Game Menu Bottom Sheet */}
+      <BottomSheet
+        visible={showGameMenu}
+        onClose={() => setShowGameMenu(false)}
+        title="Game Menu"
+      >
+        <div className="quick-menu-options">
           <button
-            className="mobile-menu-btn"
-            onClick={() => {
-              setShowSettings(false)
-              setShowProbSidebar(false)
-              setShowGameMenu(!showGameMenu)
-            }}
+            className="quick-menu-option"
+            onClick={() => { createNewGame(); setShowGameMenu(false); }}
+            disabled={loading}
           >
-            ☰
+            <span className="quick-menu-icon">🎮</span>
+            <span className="quick-menu-label">New Game</span>
+          </button>
+          <button
+            className="quick-menu-option"
+            onClick={() => { saveGame(); setShowGameMenu(false); }}
+            disabled={loading || !gameId}
+          >
+            <span className="quick-menu-icon">💾</span>
+            <span className="quick-menu-label">Save Game</span>
+          </button>
+          <label className="quick-menu-option" style={{ cursor: 'pointer' }}>
+            <span className="quick-menu-icon">📂</span>
+            <span className="quick-menu-label">Load Game</span>
+            <input
+              type="file"
+              accept=".csp,.json"
+              onChange={loadGame}
+              style={{ display: 'none' }}
+              disabled={loading}
+            />
+          </label>
+        </div>
+      </BottomSheet>
+
+      {/* Settings Bottom Sheet */}
+      <BottomSheet
+        visible={showSettings}
+        onClose={() => setShowSettings(false)}
+        title="Settings"
+      >
+        <div className="quick-menu-options">
+          <button
+            className="quick-menu-option"
+            onClick={() => setDarkMode(!darkMode)}
+          >
+            <span className="quick-menu-icon">{darkMode ? '☼' : '☾'}</span>
+            <span className="quick-menu-label">{darkMode ? 'Light Mode' : 'Dark Mode'}</span>
           </button>
         </div>
+      </BottomSheet>
 
-        <h1 className="mobile-title">CAN'T STOP</h1>
+      {/* Player indicator removed - access via FAB menu */}
 
-        <div className="mobile-header-right">
-          <button
-            className="mobile-menu-btn"
-            onClick={() => {
-              setShowGameMenu(false)
-              setShowSettings(false)
-              setShowProbSidebar(!showProbSidebar)
-            }}
-          >
-            <BrainIconSVG width={20} height={20} />
-          </button>
-          <button
-            className="mobile-menu-btn"
-            onClick={() => {
-              setShowGameMenu(false)
-              setShowProbSidebar(false)
-              setShowSettings(!showSettings)
-            }}
-          >
-            ⚙
-          </button>
-        </div>
-      </header>
+      {/* Player Info Bottom Sheet */}
+      <BottomSheet
+        visible={showPlayerInfo}
+        onClose={() => setShowPlayerInfo(false)}
+        title="Player Details"
+      >
+        <PlayerInfoMobile
+          playerNumber={1}
+          playerName={player1Name}
+          permanent={gameState.player1_permanent}
+          completed={gameState.player1_completed}
+          isActive={currentPlayer === 1}
+          columnLengths={gameState.column_lengths}
+          setPlayerName={setPlayer1Name}
+        />
+        <div style={{ height: '1.5rem' }} />
+        <PlayerInfoMobile
+          playerNumber={2}
+          playerName={player2Name}
+          permanent={gameState.player2_permanent}
+          completed={gameState.player2_completed}
+          isActive={currentPlayer === 2}
+          columnLengths={gameState.column_lengths}
+          setPlayerName={setPlayer2Name}
+        />
+      </BottomSheet>
 
-      {/* Mobile Menus */}
-      <AnimatePresence>
-        {showGameMenu && (
-          <motion.div
-            className="mobile-dropdown-menu"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            <h3>Game Menu</h3>
-            <button onClick={() => { createNewGame(); setShowGameMenu(false); }} disabled={loading}>
-              New Game
-            </button>
-            <button onClick={() => { saveGame(); setShowGameMenu(false); }} disabled={loading || !gameId}>
-              Save Game
-            </button>
-            <label className="file-upload-btn">
-              Load Game
-              <input
-                type="file"
-                accept=".csp,.json"
-                onChange={loadGame}
-                style={{ display: 'none' }}
-                disabled={loading}
-              />
-            </label>
-          </motion.div>
-        )}
-
-        {showSettings && (
-          <motion.div
-            className="mobile-dropdown-menu"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            <h3>Settings</h3>
-            <button onClick={() => setDarkMode(!darkMode)}>
-              {darkMode ? 'Light Mode ☼' : 'Dark Mode ☾'}
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Current Player Indicator - Mobile optimized */}
-      <div className="mobile-current-player">
-        <button
-          className="mobile-player-card"
-          onClick={() => setShowPlayerInfo(!showPlayerInfo)}
-        >
-          <div className={`mobile-player-indicator ${currentPlayer === 1 ? 'player-1-active' : ''}`}>
-            <span className="player-name">{player1Name}</span>
-            <span className="completed-count">{gameState.player1_completed.length}/3</span>
-          </div>
-          <div className="vs-divider">vs</div>
-          <div className={`mobile-player-indicator ${currentPlayer === 2 ? 'player-2-active' : ''}`}>
-            <span className="player-name">{player2Name}</span>
-            <span className="completed-count">{gameState.player2_completed.length}/3</span>
-          </div>
-        </button>
-      </div>
-
-      {/* Player Info Modal */}
-      <AnimatePresence>
-        {showPlayerInfo && (
-          <motion.div
-            className="mobile-player-info-modal"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setShowPlayerInfo(false)}
-          >
-            <motion.div
-              className="mobile-player-info-content"
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <PlayerInfoMobile
-                playerNumber={1}
-                playerName={player1Name}
-                permanent={gameState.player1_permanent}
-                completed={gameState.player1_completed}
-                isActive={currentPlayer === 1}
-                columnLengths={gameState.column_lengths}
-                setPlayerName={setPlayer1Name}
-              />
-              <PlayerInfoMobile
-                playerNumber={2}
-                playerName={player2Name}
-                permanent={gameState.player2_permanent}
-                completed={gameState.player2_completed}
-                isActive={currentPlayer === 2}
-                columnLengths={gameState.column_lengths}
-                setPlayerName={setPlayer2Name}
-              />
-              <button className="close-modal-btn" onClick={() => setShowPlayerInfo(false)}>
-                Close
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Main Game Area */}
-      <main className="mobile-game-area">
-        {/* Game Board - Scrollable horizontally on mobile */}
-        <div className="mobile-board-container">
+      {/* Main Game - Full Screen Layout */}
+      <main className="mobile-game-fullscreen">
+        {/* Game Board - Scaled to fit */}
+        <div className="mobile-board-scaled">
           <GameBoardMobile
             gameState={gameState}
             hoveredPairing={hoveredPairing}
@@ -473,61 +445,187 @@ function AppMobile() {
           />
         </div>
 
-        {/* Controls Area - Fixed at bottom on mobile */}
+        {/* Compact Controls - Inline */}
         {!gameState.game_over && (
-          <div className="mobile-controls">
-            {/* Dice Roller */}
-            <DiceRollerMobile
-              dice={lastDice || gameState.current_dice}
-              isBust={gameState.is_bust}
-              onContinue={continueAfterBust}
-              onRoll={rollDice}
-              onStop={stopTurn}
-              canRoll={canRollPlayer1 || canRollPlayer2}
-              canStop={canStopPlayer1 || canStopPlayer2}
-              loading={loading}
-              currentPlayer={currentPlayer}
-            />
+          <div className="mobile-controls-compact">
+            {/* Dice - Inline, Small */}
+            <div className="mobile-dice-inline">
+              {(lastDice || gameState.current_dice) ? (
+                <div className="dice-mini-grid">
+                  {(lastDice || gameState.current_dice).map((value, idx) => (
+                    <div key={idx} className="die-mini">{value}</div>
+                  ))}
+                </div>
+              ) : (
+                <div className="dice-placeholder">🎲</div>
+              )}
+            </div>
 
-            {/* Pairing Selector */}
+            {/* Pairings - Compact Grid */}
             {hasPairings && (
-              <PairingSelectorMobile
-                availablePairings={gameState.available_pairings}
-                validPairings={gameState.valid_pairings}
-                pairingPlayability={gameState.pairing_playability}
-                selectedPairing={selectedPairing}
-                onSelectSum={selectSum}
-                activeRunners={gameState.active_runners}
-                allCompleted={[
-                  ...gameState.player1_completed,
-                  ...gameState.player2_completed
-                ]}
-                isBust={gameState.is_bust}
-                onHoverPairing={setHoveredPairing}
-                hoveredPairing={hoveredPairing}
-                onHoverSum={setHoveredSum}
-                hoveredSum={hoveredSum}
-                sumColorMap={sumColorMap}
-                lastChosenPairingIndex={gameState.last_chosen_pairing_index}
-              />
+              <div className="mobile-pairings-compact">
+                {gameState.available_pairings.map((pairing, index) => {
+                  const validIdx = gameState.valid_pairings?.findIndex(
+                    vp => vp[0] === pairing[0] && vp[1] === pairing[1]
+                  ) ?? -1
+                  const isValid = validIdx >= 0
+                  const isChosen = gameState.last_chosen_pairing_index === validIdx
+
+                  return (
+                    <button
+                      key={index}
+                      className={`pairing-compact ${isValid ? 'valid' : 'invalid'} ${isChosen ? 'chosen' : ''}`}
+                      onClick={() => isValid && !isChosen && !gameState.is_bust && selectSum(validIdx, null)}
+                      disabled={!isValid || isChosen || gameState.is_bust}
+                    >
+                      {pairing[0]}+{pairing[1]}
+                    </button>
+                  )
+                })}
+              </div>
             )}
+
+            {/* Action Buttons - Compact */}
+            <div className="mobile-actions-compact">
+              <button
+                className="btn-compact btn-roll"
+                onClick={rollDice}
+                disabled={!(canRollPlayer1 || canRollPlayer2) || loading}
+              >
+                ROLL
+              </button>
+              <button
+                className="btn-compact btn-stop"
+                onClick={stopTurn}
+                disabled={!(canStopPlayer1 || canStopPlayer2) || loading}
+              >
+                STOP
+              </button>
+            </div>
           </div>
         )}
       </main>
 
-      {/* Bust Probability Panel */}
+      {/* Bust Probability - Centered Popup */}
       <AnimatePresence>
         {showProbSidebar && (
-          <BustProbabilityMobile
-            gameState={gameState}
-            visible={showProbSidebar}
-            hoveredPairing={hoveredPairing}
-            hoveredSum={hoveredSum}
-            sumColorMap={sumColorMap}
-            onClose={() => setShowProbSidebar(false)}
-          />
+          <>
+            <motion.div
+              className="popup-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowProbSidebar(false)}
+            />
+            <motion.div
+              className="popup-brain"
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: 'spring', duration: 0.3 }}
+            >
+              <button className="popup-close" onClick={() => setShowProbSidebar(false)}>✕</button>
+              <h3>🧠 Bust Probability</h3>
+              <div className="popup-content">
+                {/* Simple probability display */}
+                <div className="prob-simple">
+                  <div className="prob-label">Current bust chance:</div>
+                  <div className="prob-value">{Math.round((gameState.bust_probability || 0) * 100)}%</div>
+                </div>
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
+
+      {/* Single FAB - All Actions */}
+      {!gameState.game_over && (
+        <FloatingActionButton
+          icon="⋮"
+          onClick={() => setShowQuickMenu(true)}
+          position={{ bottom: 10, right: 10 }}
+          ariaLabel="Open menu"
+        />
+      )}
+
+      {/* Quick Menu Bottom Sheet */}
+      <BottomSheet
+        visible={showQuickMenu}
+        onClose={() => setShowQuickMenu(false)}
+        title="Menu"
+      >
+        <div className="quick-menu-options">
+          <button
+            className="quick-menu-option"
+            onClick={() => {
+              setShowQuickMenu(false)
+              setShowPlayerInfo(true)
+            }}
+          >
+            <span className="quick-menu-icon">👥</span>
+            <span className="quick-menu-label">Player Info</span>
+          </button>
+
+          <button
+            className="quick-menu-option"
+            onClick={() => {
+              setShowQuickMenu(false)
+              setShowProbSidebar(true)
+            }}
+          >
+            <span className="quick-menu-icon">🧠</span>
+            <span className="quick-menu-label">Bust Probability</span>
+          </button>
+
+          {gameState.can_undo && (
+            <button
+              className="quick-menu-option"
+              onClick={() => {
+                setShowQuickMenu(false)
+                handleUndo()
+              }}
+            >
+              <span className="quick-menu-icon">↶</span>
+              <span className="quick-menu-label">Undo</span>
+            </button>
+          )}
+
+          {gameState.can_redo && (
+            <button
+              className="quick-menu-option"
+              onClick={() => {
+                setShowQuickMenu(false)
+                handleRedo()
+              }}
+            >
+              <span className="quick-menu-icon">↷</span>
+              <span className="quick-menu-label">Redo</span>
+            </button>
+          )}
+
+          <button
+            className="quick-menu-option"
+            onClick={() => {
+              setShowQuickMenu(false)
+              setShowGameMenu(true)
+            }}
+          >
+            <span className="quick-menu-icon">☰</span>
+            <span className="quick-menu-label">Game Menu</span>
+          </button>
+
+          <button
+            className="quick-menu-option"
+            onClick={() => {
+              setShowQuickMenu(false)
+              setShowSettings(true)
+            }}
+          >
+            <span className="quick-menu-icon">⚙</span>
+            <span className="quick-menu-label">Settings</span>
+          </button>
+        </div>
+      </BottomSheet>
 
       {/* Winner overlay */}
       {gameState.game_over && (

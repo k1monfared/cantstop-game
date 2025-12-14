@@ -1,10 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import AppMobile from './AppMobile.jsx'
+import AppMobileRedesigned from './AppMobileRedesigned.jsx'
 import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AppMobile />
+    <AppMobileRedesigned />
   </React.StrictMode>,
 )

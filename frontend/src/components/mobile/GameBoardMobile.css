@@ -5,46 +5,32 @@
   flex-direction: column;
   height: 100%;
   position: relative;
+  touch-action: manipulation;
 }
 
-.mobile-history-controls {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
+/* Hint overlay */
+.board-hint-overlay {
+  position: absolute;
+  top: 0.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
   padding: 0.5rem 1rem;
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  background: var(--bg-primary);
-}
-
-.mobile-history-btn {
-  padding: 0.5rem 1rem;
-  background: var(--button-bg);
-  color: var(--button-text);
-  border: 2px solid var(--border-color);
   border-radius: 8px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  min-width: 48px;
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-tap-highlight-color: transparent;
+  font-size: 0.875rem;
+  font-weight: 600;
+  z-index: 100;
+  pointer-events: none;
+  animation: hintPulse 2s ease-in-out infinite;
 }
 
-.mobile-history-btn:disabled {
-  opacity: 0.3;
-  cursor: not-allowed;
+@keyframes hintPulse {
+  0%, 100% { opacity: 0.9; }
+  50% { opacity: 0.6; }
 }
 
-.mobile-history-btn:not(:disabled):active {
-  transform: scale(0.95);
-  background: var(--button-hover-bg);
-}
+/* History controls removed - now using FABs */
 
 .mobile-columns-wrapper {
   flex: 1;
@@ -69,6 +55,28 @@
   min-width: 50px;
   flex-shrink: 0;
   position: relative;
+  transition: all 0.2s ease;
+}
+
+.mobile-column.column-hint::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  background: rgba(139, 92, 246, 0.1);
+  border: 2px solid var(--pair-1-color);
+  border-radius: 8px;
+  pointer-events: none;
+  animation: hintColumnPulse 1.5s ease-in-out infinite;
+  z-index: 0;
+}
+
+@keyframes hintColumnPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
 }
 
 .mobile-column.column-active .mobile-column-track {
@@ -257,4 +265,22 @@
     gap: 1rem;
     padding: 0 2rem;
   }
+}
+
+/* ==================== NEW FEATURES ==================== */
+
+/* Hint dot */
+.mobile-hint-dot {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--pair-1-color);
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 5;
+}
+
+.dark-mode .mobile-hint-dot {
+  border-color: #1a1a1a;
 }

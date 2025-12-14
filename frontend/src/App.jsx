@@ -363,7 +363,12 @@ function App() {
   if (!gameState) {
     return (
       <div className="app-container loading">
-        <div className="loading-spinner">Loading game...</div>
+        <div className="loading-spinner">
+          <div>Loading game...</div>
+          <div style={{ fontSize: '0.9rem', marginTop: '1rem', opacity: 0.8 }}>
+            Note: This app is hosted on a free server, so it may take a minute to start up.
+          </div>
+        </div>
       </div>
     )
   }

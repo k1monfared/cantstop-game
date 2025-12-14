@@ -278,8 +278,16 @@
 
 .loading-spinner {
   font-size: 1.5rem;
-  color: white;
+  color: #1a1a2e;
   animation: pulse 1.5s ease-in-out infinite;
+  text-align: center;
+  padding: 2rem;
+  max-width: 500px;
+  line-height: 1.6;
+}
+
+.dark-mode .loading-spinner {
+  color: #e2e8f0;
 }
 
 @keyframes pulse {

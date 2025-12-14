@@ -24,10 +24,12 @@
   --pair-1-color: #8b5cf6;  /* Purple - first dice pair */
   --pair-1-color-dark: #7c3aed;
   --pair-1-color-light: #ede9fe;
+  --pair-1-color-rgb: 139, 92, 246;
 
   --pair-2-color: #14b8a6;  /* Teal/Cyan - second dice pair */
   --pair-2-color-dark: #0d9488;
   --pair-2-color-light: #d1fae5;
+  --pair-2-color-rgb: 20, 184, 166;
 
   /* Invalid/Grey Color (for invalid pairings) */
   --invalid-color: #9ca3af;
@@ -59,6 +61,7 @@
   --bg-white: rgba(255, 255, 255, 0.95);
   --bg-white-solid: #ffffff;
   --bg-light: #f7fafc;
+  --bg-secondary-rgb: 255, 255, 255;
 
   /* Border Colors */
   --border-light: #e2e8f0;
@@ -80,6 +83,7 @@
   --bg-white: rgba(31, 41, 55, 0.95);
   --bg-white-solid: #1f2937;
   --bg-light: #111827;
+  --bg-secondary-rgb: 31, 41, 55;
 
   --border-light: rgba(255, 255, 255, 0.1);
   --border-medium: rgba(255, 255, 255, 0.2);

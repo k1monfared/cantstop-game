@@ -1,5 +1,6 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLongPress } from '../../hooks/useLongPress'
 import './PairingSelectorMobile.css'
 
 function PairingSelectorMobile({
@@ -18,6 +19,8 @@ function PairingSelectorMobile({
   sumColorMap,
   lastChosenPairingIndex
 }) {
+  const [previewMode, setPreviewMode] = useState(false)
+  const [pressingCard, setPressingCard] = useState(null)
   const isValidPairing = (pairing) => {
     return validPairings?.some(vp => vp[0] === pairing[0] && vp[1] === pairing[1])
   }
@@ -38,7 +41,10 @@ function PairingSelectorMobile({
 
   return (
     <div className="mobile-pairing-selector">
-      <div className="mobile-pairing-header">Choose Your Move</div>
+      <div className="mobile-pairing-header">
+        Choose Your Move
+        {previewMode && <span className="preview-hint"> (Previewing)</span>}
+      </div>
       <div className="mobile-pairings-grid">
         {availablePairings.map((pairing, index) => {
           const isValid = isValidPairing(pairing)
@@ -47,19 +53,60 @@ function PairingSelectorMobile({
           const isChosen = lastChosenPairingIndex === validIdx
           const needsChoice = playability?.needs_choice
 
+          // Long press handlers for this specific card
+          const longPressHandlers = useLongPress(
+            () => {
+              // Long press confirmed - enter preview mode
+              if (!isBust && !isChosen) {
+                setPreviewMode(true)
+                setPressingCard(index)
+                onHoverPairing(index)
+
+                // Haptic feedback if available
+                if (navigator.vibrate) {
+                  navigator.vibrate(10)
+                }
+              }
+            },
+            {
+              threshold: 500,
+              onStart: () => {
+                // Visual feedback that press started
+                if (!isBust && !isChosen) {
+                  setPressingCard(index)
+                }
+              },
+              onFinish: () => {
+                // Long press ended - exit preview mode
+                setPreviewMode(false)
+                setPressingCard(null)
+                onHoverPairing(null)
+              },
+              onCancel: () => {
+                // Was a short tap - execute selection
+                setPressingCard(null)
+                // Only auto-select if it's a non-choice pairing
+                if (!needsChoice && isValid && !isChosen && !isBust) {
+                  onSelectSum(validIdx, null)
+                }
+              }
+            }
+          )
+
           return (
             <motion.div
               key={index}
               className={`mobile-pairing-card ${isValid ? 'valid' : 'invalid'} ${
                 isChosen ? 'chosen' : ''
-              } ${isBust ? 'bust' : ''}`}
+              } ${isBust ? 'bust' : ''} ${
+                previewMode && pressingCard === index ? 'previewing' : ''
+              } ${pressingCard === index && !previewMode ? 'pressing' : ''}`}
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: index * 0.1 }}
-              onTouchStart={() => onHoverPairing(index)}
-              onTouchEnd={() => onHoverPairing(null)}
-              onMouseEnter={() => onHoverPairing(index)}
-              onMouseLeave={() => onHoverPairing(null)}
+              {...longPressHandlers}
+              onMouseEnter={() => !previewMode && onHoverPairing(index)}
+              onMouseLeave={() => !previewMode && onHoverPairing(null)}
             >
               <div className="mobile-pairing-sums">
                 {/* Sum 1 */}

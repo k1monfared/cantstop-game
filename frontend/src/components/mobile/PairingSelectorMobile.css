@@ -15,6 +15,14 @@
   letter-spacing: 0.5px;
 }
 
+.preview-hint {
+  color: #7c3aed;
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: none;
+  animation: previewPulse 1s ease-in-out infinite;
+}
+
 .mobile-pairings-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -47,6 +55,49 @@
   background: rgba(var(--accent-color-rgb, 74, 158, 255), 0.2);
   border-color: var(--accent-color);
   border-width: 4px;
+}
+
+/* Pressing state (finger down, before long press triggers) */
+.mobile-pairing-card.pressing {
+  transform: scale(0.98);
+  opacity: 0.9;
+}
+
+/* Previewing state (long press active) */
+.mobile-pairing-card.previewing {
+  border: 3px solid #7c3aed;
+  animation: previewPulse 1s ease-in-out infinite;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  position: relative;
+}
+
+/* Preview indicator */
+.mobile-pairing-card.previewing::before {
+  content: '👁 Preview';
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #7c3aed;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes previewPulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+  }
+  50% {
+    opacity: 0.85;
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.6);
+  }
 }
 
 .mobile-pairing-card.bust {

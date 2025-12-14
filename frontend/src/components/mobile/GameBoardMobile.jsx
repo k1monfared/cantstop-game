@@ -1,9 +1,23 @@
-import React from 'react'
+import React, { useState, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import './GameBoardMobile.css'
 
-function GameBoardMobile({ gameState, hoveredPairing, hoveredSum, sumColorMap, onUndo, onRedo, player1Name, player2Name }) {
+function GameBoardMobile({
+  gameState,
+  hoveredPairing,
+  hoveredSum,
+  sumColorMap,
+  onUndo,
+  onRedo,
+  player1Name,
+  player2Name,
+  selectedPairingSums, // {sums: [sum1, sum2], pairing: {...}}
+  onConfirmMove, // Called on double-tap
+  onChooseSum // Called when tapping a column in choose-one scenario
+}) {
   const { column_lengths, player1_permanent, player2_permanent, temp_progress, active_runners } = gameState
+  const [tapCount, setTapCount] = useState(0)
+  const tapTimeoutRef = useRef(null)
 
   const getColumnHeight = (col) => column_lengths[col]
 
@@ -33,27 +47,70 @@ function GameBoardMobile({ gameState, hoveredPairing, hoveredSum, sumColorMap, o
 
   const columns = Object.keys(column_lengths).map(Number)
 
+  // Double-tap handler
+  const handleBoardTap = useCallback(() => {
+    if (tapTimeoutRef.current) {
+      // This is second tap - double tap detected
+      clearTimeout(tapTimeoutRef.current)
+      tapTimeoutRef.current = null
+      setTapCount(0)
+
+      // Trigger move confirmation if we have a pairing selected
+      if (selectedPairingSums?.sums) {
+        onConfirmMove?.()
+
+        // Haptic feedback
+        if (navigator.vibrate) {
+          navigator.vibrate([10, 50, 10])
+        }
+      }
+    } else {
+      // This is first tap - wait for second tap
+      setTapCount(1)
+      tapTimeoutRef.current = setTimeout(() => {
+        // Timeout expired - single tap, not double tap
+        setTapCount(0)
+        tapTimeoutRef.current = null
+      }, 300) // 300ms window for double tap
+    }
+  }, [selectedPairingSums, onConfirmMove])
+
+  // Column tap handler for choosing sum
+  const handleColumnTap = useCallback((col) => {
+    if (selectedPairingSums?.sums?.includes(col)) {
+      onChooseSum?.(col)
+
+      // Haptic feedback
+      if (navigator.vibrate) {
+        navigator.vibrate(10)
+      }
+    }
+  }, [selectedPairingSums, onChooseSum])
+
+  // Check if column should show hint dot
+  const shouldShowHint = useCallback((col) => {
+    return selectedPairingSums?.sums?.includes(col)
+  }, [selectedPairingSums])
+
+  // Check if both sums are same (both can be played)
+  const isChooseOneScenario = useCallback(() => {
+    if (!selectedPairingSums?.sums) return false
+    const [sum1, sum2] = selectedPairingSums.sums
+    return sum1 === sum2 || (
+      // Both are playable but different - need to choose
+      selectedPairingSums.sums.length === 2 &&
+      sum1 !== sum2
+    )
+  }, [selectedPairingSums])
+
   return (
-    <div className="mobile-game-board">
-      {/* Undo/Redo buttons - positioned at top */}
-      <div className="mobile-history-controls">
-        <button
-          className="mobile-history-btn"
-          onClick={onUndo}
-          disabled={!gameState.can_undo}
-          title="Undo"
-        >
-          ←
-        </button>
-        <button
-          className="mobile-history-btn"
-          onClick={onRedo}
-          disabled={!gameState.can_redo}
-          title="Redo"
-        >
-          →
-        </button>
-      </div>
+    <div className="mobile-game-board" onClick={handleBoardTap}>
+      {/* Hint overlay for double-tap */}
+      {selectedPairingSums?.sums && (
+        <div className="board-hint-overlay">
+          Double-tap board to confirm move
+        </div>
+      )}
 
       {/* Columns - scrollable horizontally */}
       <div className="mobile-columns-wrapper">
@@ -68,9 +125,20 @@ function GameBoardMobile({ gameState, hoveredPairing, hoveredSum, sumColorMap, o
             const completed = isCompleted(col)
             const completedBy = getCompletedBy(col)
             const active = isActive(col)
+            const showHint = shouldShowHint(col)
+            const isChooseOne = isChooseOneScenario()
 
             return (
-              <div key={col} className={`mobile-column ${active ? 'column-active' : ''}`}>
+              <div
+                key={col}
+                className={`mobile-column ${active ? 'column-active' : ''} ${showHint ? 'column-hint' : ''}`}
+                onClick={(e) => {
+                  if (isChooseOne && showHint) {
+                    e.stopPropagation()
+                    handleColumnTap(col)
+                  }
+                }}
+              >
                 <div className="mobile-column-header">
                   <span className="mobile-column-number">{col}</span>
                 </div>
@@ -81,6 +149,7 @@ function GameBoardMobile({ gameState, hoveredPairing, hoveredSum, sumColorMap, o
                     const hasP1 = position === p1Progress && p1Progress > 0
                     const hasP2 = position === p2Progress && p2Progress > 0
                     const hasTemp = position === permanentProg + tempProg && tempProg > 0
+                    const isHintPosition = showHint && position === permanentProg + tempProg + 1
 
                     return (
                       <motion.div
@@ -120,6 +189,18 @@ function GameBoardMobile({ gameState, hoveredPairing, hoveredSum, sumColorMap, o
                               stiffness: 100,
                               damping: 20,
                               layout: { duration: 1.5 }
+                            }}
+                          />
+                        )}
+                        {isHintPosition && (
+                          <motion.div
+                            className="mobile-hint-dot"
+                            initial={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: [1, 1.2, 1], opacity: [0.6, 1, 0.6] }}
+                            transition={{
+                              duration: 1.5,
+                              repeat: Infinity,
+                              ease: 'easeInOut'
                             }}
                           />
                         )}
